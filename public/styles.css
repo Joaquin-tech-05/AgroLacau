@@ -152,3 +152,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--verde); bor
 .dosis { font-weight: 500; font-size: 14px; color: var(--texto-suave); }
 .btn.ancho { width: 100%; }
 .pie { display: flex; flex-direction: column; align-items: center; }
+
+/* Umbrales por etapa */
+.umbral-cabecera { font-size: 12px; font-weight: 700; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.03em; }
+.umbral-cabecera .umbral-campo span { width: 64px; text-align: center; font-size: 11px; }
+.umbral-cabecera .umbral-campo i { width: 30px; }
+.umbral-campo input { width: 64px; }
+.umbral-campo .btn-peligro { width: 30px; padding: 8px 0; }
+.opciones button small { display: block; font-size: 11px; font-weight: 500; opacity: 0.75; }
+.opciones button { flex-direction: column; gap: 0; }

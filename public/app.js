@@ -5,20 +5,27 @@
 (function () {
   var CULTIVOS = ['Soja 1ra', 'Soja 2da', 'Maíz', 'Girasol', 'Trigo', 'Otro'];
 
-  // Plagas que se cuentan en cada cultivo y su umbral de daño en ind/m lineal (null = sin umbral).
-  // Valores orientativos: se ajustan desde la pantalla "Umbrales de daño".
+  // Etapas del cultivo: cada plaga tiene un umbral distinto para cada una.
+  var ETAPAS = [
+    { id: 'vegetativo', nombre: 'Vegetativo', corto: 'Veg.', ejemplo: 'V1, V6…' },
+    { id: 'reproductivo', nombre: 'Reproductivo', corto: 'Repr.', ejemplo: 'R1, R5…' }
+  ];
+
+  // Plagas que se cuentan en cada cultivo y su umbral de daño en ind/m lineal por etapa
+  // (null = sin umbral). Valores orientativos: se ajustan desde la pantalla "Umbrales de daño".
+  function sinUmbral(plaga) { return { plaga: plaga, umbral: { vegetativo: null, reproductivo: null } }; }
   var PLAGAS_SOJA = [
-    { plaga: 'Chinches', umbral: 1 },
-    { plaga: 'Orugas defoliadoras', umbral: 15 },
-    { plaga: 'Isoca bolillera', umbral: 2 }
+    { plaga: 'Chinches', umbral: { vegetativo: null, reproductivo: 1 } },
+    { plaga: 'Orugas defoliadoras', umbral: { vegetativo: 20, reproductivo: 15 } },
+    { plaga: 'Isoca bolillera', umbral: { vegetativo: null, reproductivo: 2 } }
   ];
   var UMBRALES_INICIALES = {
     'Soja 1ra': PLAGAS_SOJA,
     'Soja 2da': PLAGAS_SOJA,
-    'Maíz': [{ plaga: 'Cogollero', umbral: null }, { plaga: 'Chinches', umbral: null }],
-    'Girasol': [{ plaga: 'Orugas defoliadoras', umbral: null }, { plaga: 'Chinches', umbral: null }],
-    'Trigo': [{ plaga: 'Pulgones', umbral: null }, { plaga: 'Orugas', umbral: null }],
-    'Otro': [{ plaga: 'Chinches', umbral: null }, { plaga: 'Orugas', umbral: null }]
+    'Maíz': [sinUmbral('Cogollero'), sinUmbral('Chinches')],
+    'Girasol': [sinUmbral('Orugas defoliadoras'), sinUmbral('Chinches')],
+    'Trigo': [sinUmbral('Pulgones'), sinUmbral('Orugas')],
+    'Otro': [sinUmbral('Chinches'), sinUmbral('Orugas')]
   };
 
   var MALEZAS = ['Rama negra', 'Yuyo colorado', 'Sorgo de Alepo', 'Capín', 'Pata de ganso', 'Gramón', 'Otra'];
@@ -61,6 +68,12 @@
     d = d || datosIniciales();
     // Datos guardados con versiones anteriores de la app no traen estas partes.
     d.umbrales = d.umbrales || umbralesIniciales();
+    // La versión anterior guardaba un solo umbral por plaga: se usa para las dos etapas.
+    Object.keys(d.umbrales).forEach(function (cultivo) {
+      d.umbrales[cultivo].forEach(function (u) {
+        if (u.umbral == null || typeof u.umbral === 'number') u.umbral = { vegetativo: u.umbral, reproductivo: u.umbral };
+      });
+    });
     d.aplicaciones = d.aplicaciones || [];
     return d;
   }
@@ -89,10 +102,26 @@
 
   function plagasDe(cultivo) { return datos.umbrales[cultivo] || (datos.umbrales[cultivo] = []); }
 
-  function umbralDe(cultivo, plaga) {
+  function umbralDe(cultivo, plaga, etapa) {
     var u = plagasDe(cultivo).find(function (x) { return x.plaga === plaga; });
-    return u && u.umbral > 0 ? u.umbral : null;
+    var valor = u && etapa && u.umbral[etapa];
+    return valor > 0 ? valor : null;
   }
+
+  function nombreEtapa(id) {
+    var e = ETAPAS.find(function (x) { return x.id === id; });
+    return e ? e.nombre : '';
+  }
+
+  // "V6" → vegetativo, "R5" → reproductivo; si no se reconoce, null.
+  function etapaDesdeTexto(texto) {
+    var t = (texto || '').trim().toUpperCase();
+    if (/^V/.test(t)) return 'vegetativo';
+    if (/^R/.test(t)) return 'reproductivo';
+    return null;
+  }
+
+  function etapaDe(m) { return m.etapa || etapaDesdeTexto(m.estadio); }
 
   // ---------- Cálculos ----------
 
@@ -119,10 +148,11 @@
   // Resultado de cada plaga de un monitoreo con su umbral y estado.
   function resultados(m) {
     var cultivo = cultivoDe(m);
+    var etapa = etapaDe(m);
     return m.plagas.map(function (p) {
       var valor = porMetro(p, m);
-      var umbral = umbralDe(cultivo, p.nombre);
-      return { nombre: p.nombre, valor: valor, umbral: umbral, estado: estadoDe(valor, umbral) };
+      var umbral = umbralDe(cultivo, p.nombre, etapa);
+      return { nombre: p.nombre, valor: valor, umbral: umbral, etapa: etapa, estado: estadoDe(valor, umbral) };
     });
   }
 
@@ -163,7 +193,9 @@
   // Fila del cuadro de resultados: plaga, valor, umbral y semáforo.
   function filaResultado(r) {
     return '<div class="resultado-fila"><span><i class="punto ' + (r.estado || '') + '"></i>' + esc(r.nombre) +
-      '<small>' + (r.umbral ? 'Umbral ' + num(r.umbral) + ' ind/m' : 'Sin umbral cargado') + '</small></span>' +
+      '<small>' + (!r.etapa ? 'Elegí la etapa para comparar con el umbral'
+        : r.umbral ? 'Umbral ' + nombreEtapa(r.etapa).toLowerCase() + ': ' + num(r.umbral) + ' ind/m'
+        : 'Sin umbral para ' + nombreEtapa(r.etapa).toLowerCase()) + '</small></span>' +
       '<b>' + num(r.valor) + ' ind/m</b></div>';
   }
 
@@ -212,7 +244,7 @@
 
   function vistaUmbrales() {
     var html = '<a class="volver" href="#/">‹ Lotes</a><h1>Umbrales de daño</h1>' +
-      '<p class="sub">En individuos por metro lineal. Dejá vacío si no querés alerta para esa plaga. ' +
+      '<p class="sub">En individuos por metro lineal, para cada etapa del cultivo: Veg. = vegetativo, Repr. = reproductivo. Dejá vacío si no querés alerta. ' +
       'Las plagas de cada cultivo son las que aparecen al hacer un monitoreo.</p>' +
       '<div class="tarjeta leyenda">' +
       '<span><i class="punto rojo"></i>Supera umbral: igual o más que el umbral</span>' +
@@ -221,11 +253,17 @@
 
     CULTIVOS.forEach(function (cultivo) {
       html += '<h2>' + esc(cultivo) + '</h2><div class="tarjeta">' +
+        '<div class="plaga-fila umbral-cabecera"><span>Plaga</span><div class="umbral-campo">' +
+        ETAPAS.map(function (e) { return '<span title="' + e.nombre + '">' + e.corto + '</span>'; }).join('') + '<i></i></div></div>' +
         plagasDe(cultivo).map(function (u, i) {
           return '<div class="plaga-fila"><span>' + esc(u.plaga) + '</span><div class="umbral-campo">' +
-            '<input type="number" inputmode="decimal" min="0" step="any" placeholder="—" data-umbral-cultivo="' + esc(cultivo) +
-            '" data-umbral-indice="' + i + '" value="' + (u.umbral == null ? '' : u.umbral) + '" aria-label="Umbral ' + esc(u.plaga) + ' en ' + esc(cultivo) + '"/>' +
-            '<span>ind/m</span><button type="button" class="btn-peligro" data-accion="quitar-plaga-umbral" data-cultivo="' + esc(cultivo) +
+            ETAPAS.map(function (e) {
+              var v = u.umbral[e.id];
+              return '<input type="number" inputmode="decimal" min="0" step="any" placeholder="—" data-umbral-cultivo="' + esc(cultivo) +
+                '" data-umbral-indice="' + i + '" data-umbral-etapa="' + e.id + '" value="' + (v == null ? '' : v) +
+                '" aria-label="Umbral ' + esc(u.plaga) + ' en ' + esc(cultivo) + ', ' + e.nombre.toLowerCase() + '"/>';
+            }).join('') +
+            '<button type="button" class="btn-peligro" data-accion="quitar-plaga-umbral" data-cultivo="' + esc(cultivo) +
             '" data-indice="' + i + '" aria-label="Quitar ' + esc(u.plaga) + '">✕</button></div></div>';
         }).join('') +
         '<button type="button" class="btn-texto" data-accion="agregar-plaga-umbral" data-cultivo="' + esc(cultivo) + '">+ Agregar plaga</button></div>';
@@ -285,7 +323,7 @@
       html += '<div class="lista">' + monitoreos.map(function (m) {
         var estado = peorEstado(m);
         return '<a class="item ' + (estado ? 'borde-' + estado : '') + '" href="#/monitoreo/' + m.id + '"><div><div class="item-titulo">' + fecha(m.fecha) +
-          (m.estadio ? ' · ' + esc(m.estadio) : '') + ' ' + chipEstado(estado) + '</div><div class="item-detalle">' +
+          (etapaDe(m) ? ' · ' + nombreEtapa(etapaDe(m)) : '') + (m.estadio ? ' ' + esc(m.estadio) : '') + ' ' + chipEstado(estado) + '</div><div class="item-detalle">' +
           esc(resumenPlagas(m)) + '</div><div class="item-detalle">Paneo de ' + nombreLargo(m.largo) + ' · ' +
           m.cantidadPaneos + (m.cantidadPaneos === 1 ? ' paneo' : ' paneos') + '</div></div><span class="flecha">›</span></a>';
       }).join('') + '</div>';
@@ -362,6 +400,7 @@
       cultivo: lote.cultivo,
       fecha: hoy(),
       estadio: '',
+      etapa: null,
       largo: 1,
       plagas: plagasDe(lote.cultivo).map(function (u) { return { nombre: u.plaga, conteos: [0] }; }),
       malezas: [],
@@ -382,6 +421,11 @@
       '<div class="campo"><label for="m-fecha">Fecha</label><input id="m-fecha" type="date" data-campo="fecha" value="' + b.fecha + '"/></div>' +
       '<div class="campo"><label for="m-estadio">Estado del cultivo</label><input id="m-estadio" data-campo="estadio" placeholder="Ej: R5" value="' + esc(b.estadio) + '"/></div>' +
       '</div>' +
+      '<label>Etapa del cultivo</label><div class="opciones" id="etapas" style="margin-bottom:14px">' +
+      ETAPAS.map(function (e) {
+        return '<button type="button" data-accion="etapa" data-valor="' + e.id + '" class="' + (b.etapa === e.id ? 'activo' : '') + '">' +
+          e.nombre + '<small>' + e.ejemplo + '</small></button>';
+      }).join('') + '</div>' +
       '<label>Tipo de paneo</label><div class="opciones">' +
       '<button type="button" data-accion="largo" data-valor="1" class="' + (b.largo === 1 ? 'activo' : '') + '">Paneo de 1 metro</button>' +
       '<button type="button" data-accion="largo" data-valor="0.5" class="' + (b.largo === 0.5 ? 'activo' : '') + '">Paneo de ½ metro</button>' +
@@ -438,6 +482,12 @@
       resultados(borrador).map(filaResultado).join('');
   }
 
+  function marcarEtapa() {
+    document.querySelectorAll('#etapas button').forEach(function (btn) {
+      btn.classList.toggle('activo', btn.dataset.valor === borrador.etapa);
+    });
+  }
+
   function guardarMonitoreo() {
     var b = borrador;
     datos.monitoreos.push({
@@ -446,6 +496,7 @@
       cultivo: b.cultivo,
       fecha: b.fecha || hoy(),
       estadio: b.estadio.trim(),
+      etapa: b.etapa,
       largo: b.largo,
       cantidadPaneos: b.plagas.length ? b.plagas[0].conteos.length : 0,
       plagas: b.plagas.map(function (p) { return { nombre: p.nombre, conteos: p.conteos.map(function (n) { return Number(n) || 0; }) }; }),
@@ -464,7 +515,7 @@
     var html =
       '<a class="volver" href="#/lote/' + lote.id + '">‹ ' + esc(lote.nombre) + '</a>' +
       '<h1>Monitoreo ' + fecha(m.fecha) + '</h1>' +
-      '<p class="sub">' + (m.estadio ? 'Estado ' + esc(m.estadio) + ' · ' : '') + 'Paneo de ' + nombreLargo(m.largo) + ' · ' + m.cantidadPaneos + (m.cantidadPaneos === 1 ? ' paneo' : ' paneos') + '</p>' +
+      '<p class="sub">' + (etapaDe(m) ? nombreEtapa(etapaDe(m)) + (m.estadio ? ' (' + esc(m.estadio) + ')' : '') + ' · ' : (m.estadio ? 'Estado ' + esc(m.estadio) + ' · ' : '')) + 'Paneo de ' + nombreLargo(m.largo) + ' · ' + m.cantidadPaneos + (m.cantidadPaneos === 1 ? ' paneo' : ' paneos') + '</p>' +
       '<div class="resultado"><h3>Resultado por metro lineal</h3><p class="nota">' + num(m.cantidadPaneos * m.largo) + ' m revisados</p>' +
       resultados(m).map(filaResultado).join('') + '</div>' +
       '<h2>Conteo por paneo</h2><div class="tarjeta">' +
@@ -483,12 +534,12 @@
   // ---------- Exportar ----------
 
   function exportarMonitoreos() {
-    var filas = [['Lote', 'Cultivo', 'Fecha', 'Estado del cultivo', 'Tipo de paneo', 'Paneos', 'Plaga', 'Conteos', 'Ind/m', 'Umbral', 'Semáforo', 'Malezas', 'Notas']];
+    var filas = [['Lote', 'Cultivo', 'Fecha', 'Estado del cultivo', 'Etapa', 'Tipo de paneo', 'Paneos', 'Plaga', 'Conteos', 'Ind/m', 'Umbral', 'Semáforo', 'Malezas', 'Notas']];
     datos.monitoreos.slice().sort(function (a, b) { return a.fecha.localeCompare(b.fecha); }).forEach(function (m) {
       var lote = buscarLote(m.loteId) || { nombre: '' };
       var malezas = m.malezas.map(function (mz) { return mz.nombre + ' (' + mz.nivel + ')'; }).join(', ');
       resultados(m).forEach(function (r, i) {
-        filas.push([lote.nombre, cultivoDe(m), fecha(m.fecha), m.estadio, nombreLargo(m.largo), m.cantidadPaneos,
+        filas.push([lote.nombre, cultivoDe(m), fecha(m.fecha), m.estadio, nombreEtapa(etapaDe(m)), nombreLargo(m.largo), m.cantidadPaneos,
           r.nombre, m.plagas[i].conteos.join(' '), num(r.valor), r.umbral ? num(r.umbral) : '', r.estado ? ESTADOS[r.estado] : '', malezas, m.notas]);
       });
     });
@@ -551,7 +602,7 @@
     if (accion === 'agregar-plaga-umbral') {
       var plaga = (prompt('Nombre de la plaga') || '').trim();
       if (!plaga) return;
-      plagasDe(el.dataset.cultivo).push({ plaga: plaga, umbral: null });
+      plagasDe(el.dataset.cultivo).push(sinUmbral(plaga));
       guardar();
       vistaUmbrales();
       return;
@@ -592,6 +643,10 @@
       p.conteos[i] = Math.max(0, (Number(p.conteos[i]) || 0) + (accion === 'sumar' ? 1 : -1));
       el.parentNode.querySelector('input').value = p.conteos[i];
       actualizarResultado();
+    } else if (accion === 'etapa') {
+      b.etapa = el.dataset.valor;
+      marcarEtapa();
+      actualizarResultado();
     } else if (accion === 'largo') {
       b.largo = Number(el.dataset.valor);
       formMonitoreo(lote);
@@ -623,13 +678,19 @@
     var el = e.target;
     if (el.dataset.umbralCultivo) {
       var valor = parseFloat(el.value.replace(',', '.'));
-      plagasDe(el.dataset.umbralCultivo)[el.dataset.umbralIndice].umbral = valor > 0 ? valor : null;
+      plagasDe(el.dataset.umbralCultivo)[el.dataset.umbralIndice].umbral[el.dataset.umbralEtapa] = valor > 0 ? valor : null;
       guardar();
       return;
     }
     if (!borrador) return;
     if (el.dataset.campo) {
       borrador[el.dataset.campo] = el.value;
+      // Al escribir "V6" o "R5" se elige sola la etapa.
+      if (el.dataset.campo === 'estadio' && etapaDesdeTexto(el.value)) {
+        borrador.etapa = etapaDesdeTexto(el.value);
+        marcarEtapa();
+        actualizarResultado();
+      }
     } else if (el.dataset.plaga != null) {
       borrador.plagas[el.dataset.plaga].conteos[el.dataset.paneo] = Math.max(0, Number(el.value) || 0);
       actualizarResultado();

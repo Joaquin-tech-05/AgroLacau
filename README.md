@@ -6,7 +6,8 @@ App simple para anotar monitoreos de lotes.
 - **Nuevo monitoreo** por lote: paneo de **1 metro** o de **½ metro**, conteo de plagas por paneo
   y resultado automático en **individuos por metro lineal**
   (total contado ÷ (cantidad de paneos × largo del paño)).
-- **Umbrales de daño** por cultivo y plaga (editables). Semáforo: rojo desde el umbral,
+- **Umbrales de daño** por cultivo, plaga y etapa del cultivo (vegetativo / reproductivo), editables.
+  La etapa se elige en cada monitoreo (o se detecta sola al escribir "V6", "R5"…). Semáforo: rojo desde el umbral,
   amarillo desde la mitad, verde por debajo. Los lotes que superan el umbral aparecen arriba de todo.
 - **Productos aplicados** por lote: producto, tipo, fecha, dosis y notas.
 - Malezas con nivel (Baja / Media / Alta) y notas.
