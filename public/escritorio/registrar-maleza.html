@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "outline": "#717970", "on-primary": "#ffffff", "on-background": "#191c1b", "on-tertiary": "#ffffff", "surface-tint": "#3a6843", "surface-container-low": "#f2f4f1", "error-container": "#ffdad6", "on-error-container": "#93000a", "secondary-container": "#aef4a6", "tertiary": "#163505", "on-tertiary-container": "#96bc7d", "primary-fixed-dim": "#a0d3a6", "surface-container-highest": "#e1e3e0", "on-secondary": "#ffffff", "surface-variant": "#e1e3e0", "surface-container": "#eceeeb", "on-secondary-fixed-variant": "#0f5218", "surface-container-high": "#e7e9e6", "on-tertiary-fixed": "#082100", "inverse-surface": "#2e312f", "inverse-primary": "#a0d3a6", "tertiary-container": "#2c4c1a", "error": "#ba1a1a", "on-surface-variant": "#414941", "on-primary-fixed-variant": "#22502d", "secondary-fixed-dim": "#93d78c", "primary": "#043616", "surface-container-lowest": "#ffffff", "inverse-on-surface": "#eff1ee", "on-primary-fixed": "#00210b", "primary-container": "#1f4d2b", "surface-dim": "#d8dbd8", "surface-bright": "#f8faf7", "on-tertiary-fixed-variant": "#2e4f1c", "outline-variant": "#c1c9be", "on-secondary-container": "#327133", "on-error": "#ffffff", "surface": "#f8faf7", "primary-fixed": "#bbefc0", "on-surface": "#191c1b", "secondary": "#2c6b2d", "secondary-fixed": "#aef4a6", "background": "#f8faf7", "tertiary-fixed": "#c6eeab", "tertiary-fixed-dim": "#abd291", "on-primary-container": "#8cbd92", "on-secondary-fixed": "#002204" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "gutter": "1rem", "space-md": "1rem", "margin-tablet": "1.5rem", "space-xl": "2rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "gutter-desktop": "1.5rem", "margin-desktop": "2rem", "margin": "1rem" }, "fontFamily": { "data-metric": [ "Manrope" ], "headline-lg-mobile": [ "Manrope" ], "headline-xl": [ "Manrope" ], "headline-lg": [ "Manrope" ], "headline-xl-mobile": [ "Manrope" ], "body-lg": [ "Manrope" ], "body-sm": [ "Manrope" ], "label-sm": [ "Manrope" ], "headline-md": [ "Manrope" ], "label-lg": [ "Manrope" ], "label-md": [ "Manrope" ], "body-md": [ "Manrope" ] }, "fontSize": { "data-metric": [ "28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "headline-lg-mobile": [ "20px", { "lineHeight": "28px", "letterSpacing": "0", "fontWeight": "600" } ], "headline-xl": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "headline-lg": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "headline-xl-mobile": [ "26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-sm": [ "13px", { "lineHeight": "18px", "fontWeight": "400" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" } ], "headline-md": [ "18px", { "lineHeight": "26px", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm px-space-xs pt-space-xs"><div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[24px]">psychiatry</span></div><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight text-primary leading-tight">AgroLacau</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">La María Elisa</span></div></div><div><button class="w-full flex items-center justify-center gap-space-xs py-space-sm px-space-md bg-primary-container text-on-primary rounded-lg font-label-lg text-label-lg transition-colors hover:bg-primary" type="button"><span class="material-symbols-outlined text-[20px]">add_circle</span><span>Nuevo monitoreo</span></button></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container text-primary font-label-lg"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="inicio" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Inicio</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="lotes" href="#"><span class="material-symbols-outlined text-[20px]">crop_landscape</span><span>Lotes</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all bg-surface-container text-primary font-label-lg" data-path="monitoreos" href="#"><span class="material-symbols-outlined text-[20px]">pest_control</span><span>Monitoreos</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="catalogos" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span>Catálogos</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="historial" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span>Historial</span></a></nav></div><div class="flex flex-col gap-space-sm p-space-sm bg-surface rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-on-surface-variant">Telemetría de campo</span><div class="flex items-center gap-space-xs"><span class="inline-block w-2.5 h-2.5 rounded-full bg-secondary"></span><span class="font-label-sm text-label-sm text-secondary font-semibold">En línea</span></div></div><div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant"><span>Sincronización</span><span>Activa (2m)</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)] flex items-center justify-between px-gutter-desktop"><div class="flex items-center w-96"><div class="relative w-full"><span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span><input class="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm rounded-lg pl-10 pr-space-md py-space-xs outline-none focus:bg-surface-container" placeholder="Buscar lote, plaga, fenología o receta..." type="search"/></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><button aria-label="Notificaciones sanitarias y alertas" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors relative" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error"></span></button><button aria-label="Estación meteorológica" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">cloud</span></button></div><div class="h-6 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right"><span class="font-label-lg text-label-lg text-on-surface leading-tight">Ing. Agr. Juan Lacau</span><span class="font-label-sm text-label-sm text-on-surface-variant">Responsable Técnico</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-background px-gutter-desktop"><div class="flex flex-col w-full pb-space-xl">
+<!-- Top Banner / Demo Tag & Breadcrumbs -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm py-space-sm mb-space-md">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">pest_control</span>
+<span>Monitoreos</span>
+</a>
+<span class="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Lote 07 – Demo</a>
+<span class="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
+<span class="text-primary font-semibold">Registrar maleza</span>
+</div>
+<div class="flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-bold text-tertiary">DATOS DE DEMOSTRACIÓN</span>
+</div>
+</div>
+<!-- Page Title Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm mb-space-lg">
+<div>
+<span class="font-label-md text-label-md text-secondary uppercase tracking-widest block font-bold">Acta Sanitaria N° 2025-084</span>
+<h1 class="font-headline-xl text-headline-xl text-primary tracking-tight">Registro de Maleza Fitosanitaria</h1>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm bg-surface-container px-space-md py-space-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">calendar_today</span>
+<span>Fecha de muestreo: <strong class="text-on-surface font-semibold">13 de marzo de 2025</strong></span>
+</div>
+</div>
+<!-- Main Balanced 2-Column Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- LEFT COLUMN: Lot Context & Field Imagery (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- Card: Contexto del Lote y Cultivo -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">crop_landscape</span>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Identificador Territorial</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Lote 07 – Demo</h2>
+</div>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+            Activo
+          </span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm p-space-sm bg-surface-container-low rounded-lg">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Superficie Total</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">85 <span class="font-body-sm text-body-sm font-normal text-on-surface-variant">ha</span></span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Zona / Cuartel</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">explore</span>
+              Bajo Norte
+            </span>
+</div>
+</div>
+<!-- Cultivo Actual (Solo Lectura) -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cultivo Sembrado (Solo Lectura)</span>
+<span class="material-symbols-outlined text-outline-variant text-[16px]" title="Dato verificado del plan de siembra">lock</span>
+</div>
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[18px]">eco</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-primary font-bold">Soja 1ra</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">DM 46R18 STS</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estadio</span>
+<span class="px-space-xs py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-label-md text-label-md font-bold">
+                R5.1
+              </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card: Zona de Carga de Imágenes de Campo -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">photo_camera</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Evidencia Fotográfica</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-space-xs py-0.5 rounded">3 registros adjuntos</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Capture planos técnicos que muestren pubescencia, ángulo foliar y hábito de crecimiento para posterior arbitraje botánico.
+        </p>
+<!-- Botones de Acción de Carga -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<button class="w-full flex items-center justify-center gap-space-xs py-space-sm px-space-sm bg-primary text-on-primary rounded-lg font-label-lg text-label-lg transition hover:bg-primary-container shadow-sm active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+<span>Tomar foto</span>
+</button>
+<button class="w-full flex items-center justify-center gap-space-xs py-space-sm px-space-sm bg-surface-container-low text-primary rounded-lg font-label-lg text-label-lg transition hover:bg-surface-container shadow-sm active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-[20px]">attach_file</span>
+<span>Adjuntar archivo</span>
+</button>
+</div>
+<!-- Galería de Miniaturas Técnicas -->
+<div class="flex flex-col gap-space-sm mt-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Muestras Capturadas en Estación</span>
+<!-- Foto 1 -->
+<div class="flex items-center gap-space-sm p-space-xs bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors">
+<div class="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-surface-container-high shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Close up agronomic field photography of a broadleaf weed growing between soybean crop rows in dark moist fertile soil with bright direct natural afternoon sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Ydzh7UqaNuYPCTba1OEVB0Uh1oF9xKxUsdDavijLGTdG1BOMAAE0gMdTgSrC6qojdQnRVft4Aqf7YnDEdUx5rOoBPPLN29JgbuYKPnamRwl37sgSQfxL9hLLWTvZ_K5McvhasMUrBJ5llxTHfnLVwZWdv9iSE7wSkfp5cxn_FKDiR4L7ayXYi1KvZCLn4ZFCD01ygBHtBJEpYNRToeu18CjkWloxYgykO14t0atM"/>
+<span class="absolute bottom-0 right-0 bg-primary/80 text-on-primary text-[10px] px-1 font-mono">#01</span>
+</div>
+<div class="flex flex-col flex-grow min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Planta completa en entresurco</span>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>13 Mar · 10:42 hs</span>
+<span>•</span>
+<span>2.8 MB</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pr-space-xs">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" title="Ampliar imagen" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container transition-colors" title="Eliminar captura" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Foto 2 -->
+<div class="flex items-center gap-space-sm p-space-xs bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors">
+<div class="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-surface-container-high shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Macro botanical field photography showing leaf stem pubescence and trichomes on an unidentified invasive weed with sharp focused cellular details in sunny rural setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_jobXFjTCHZEEKvsdCaFplWjX_FmPfbVuxEgJzpYQdDeY8bjNkwqlKjAtMMhmsRX9sAuNN6Gu3xexZtFp-HEHbIL3Lm4BCpgZCi4EEVvZ5nAsxTyA1MYgYJr7y4L4qL59XNUUxzRS1DOvdjGpsaRPHbjebLNni5aVerSdV-2bUUZEvj5LWRFqIY2ft_nCB8_jXQOsUWipLobhgF314iOcBYKLJl4pymqwJkOADXK_"/>
+<span class="absolute bottom-0 right-0 bg-primary/80 text-on-primary text-[10px] px-1 font-mono">#02</span>
+</div>
+<div class="flex flex-col flex-grow min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Detalle pubescencia y hoja</span>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>13 Mar · 10:44 hs</span>
+<span>•</span>
+<span>3.4 MB</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pr-space-xs">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" title="Ampliar imagen" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container transition-colors" title="Eliminar captura" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Foto 3 -->
+<div class="flex items-center gap-space-sm p-space-xs bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors">
+<div class="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-surface-container-high shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Detailed agricultural macro photography displaying the abaxial underside of weed leaf veins held by hand in cotton work glove in outdoor agricultural field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWfMf89tvRPH5WiekJ2vYXwk5Ao769gM9n5yHwpUYx9TwZD-KoAGL0kr_qxSztDrwEE5BnX5aB0_Rq-3TIgBQR7Dkf8Pze4tGYgmTnwmkg0XULQoI_ZKPY-PT12XUVuWDldkXUhF3qkJMglLg4bTjnLrdHJkO4fHOCEDqHGdR2s7DiaGgxyniVJ6O6DCVw1XwevPkQ29JNHIh0qjThmw2eaDdNPOVsgUEX9_JDCd-2"/>
+<span class="absolute bottom-0 right-0 bg-primary/80 text-on-primary text-[10px] px-1 font-mono">#03</span>
+</div>
+<div class="flex flex-col flex-grow min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Envés foliar y nervadura</span>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>13 Mar · 10:46 hs</span>
+<span>•</span>
+<span>3.1 MB</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pr-space-xs">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" title="Ampliar imagen" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container transition-colors" title="Eliminar captura" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Geo-referenciación instantánea -->
+<div class="p-space-sm bg-surface-container rounded-lg flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">satellite_alt</span>
+<span>GPS: -34.6192, -60.4421 (±1.8m)</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Satélites 14/16</span>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Agronomic Form (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- Card: Formulario Principal -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md sm:p-space-lg shadow-sm flex flex-col gap-space-lg">
+<!-- Gran Selector Segmentado Superior -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Criterio de Determinación Específica</span>
+<div class="grid grid-cols-2 p-1 bg-surface-container-high rounded-xl">
+<!-- Opción 1: Maleza conocida -->
+<button class="flex items-center justify-center gap-space-xs py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">checklist</span>
+<span>Maleza conocida</span>
+</button>
+<!-- Opción 2: No sé qué maleza es (ACTIVO) -->
+<button class="flex items-center justify-center gap-space-xs py-space-sm rounded-lg bg-surface-container-lowest text-primary font-label-lg text-label-lg font-bold shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[20px] text-secondary">help_center</span>
+<span>No sé qué maleza es</span>
+</button>
+</div>
+</div>
+<!-- Bloque Destacado 'No sé qué maleza es' -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Denominación Provisoria de Campo</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-data-metric text-data-metric text-primary">Maleza sin identificar #M-07-25</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-amber-100/70 text-amber-900 font-label-lg text-label-lg font-bold">
+<span class="material-symbols-outlined text-[18px] text-amber-800 animate-pulse">hourglass_top</span>
+<span>Pendiente</span>
+</div>
+</div>
+<!-- Nota Informativa Institucional Obligatoria -->
+<div class="flex items-start gap-space-sm p-space-md bg-surface-container-lowest rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary text-[24px] flex-shrink-0 mt-0.5">verified_user</span>
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-primary font-bold">Protocolo Institucional AgroLacau – La María Elisa</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                El espécimen no cuenta con identificación asignada. Será derivado al Ing. Agrónomo para su determinación taxonómica y prescripción correspondiente. Sin modelos de reconocimiento artificial ni sugerencias no verificadas.
+              </p>
+</div>
+</div>
+</div>
+<!-- Parámetros Agronómicos de Campo -->
+<div class="flex flex-col gap-space-md">
+<span class="font-label-md text-label-md text-primary font-bold uppercase tracking-wider flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]">straighten</span>
+            Parámetros y Grado de Infestación
+          </span>
+<!-- Densidad / Abundancia: Selector en botones -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Densidad / Abundancia Observada</label>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Requerido</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-xs">
+<button class="py-space-sm px-space-xs rounded-lg text-center font-label-sm text-label-sm transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest" type="button">
+                Foco aislado
+              </button>
+<button class="py-space-sm px-space-xs rounded-lg text-center font-label-sm text-label-sm transition-all bg-primary-container text-on-primary font-bold shadow-sm" type="button">
+                Dispersa
+              </button>
+<button class="py-space-sm px-space-xs rounded-lg text-center font-label-sm text-label-sm transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest" type="button">
+                En manchones
+              </button>
+<button class="py-space-sm px-space-xs rounded-lg text-center font-label-sm text-label-sm transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest" type="button">
+                Infestación generalizada
+              </button>
+</div>
+</div>
+<!-- Grid: Estrato y Ubicación -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Estrato / Altura estimada -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Estrato / Altura Estimada</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">height</span>
+<input class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg pl-10 pr-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary shadow-inner" type="text" value="15 - 30 cm"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Altura promedio respecto al canopeo</span>
+</div>
+<!-- Ubicación en el lote -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Ubicación en el Lote</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">place</span>
+<input class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-lg pl-10 pr-space-md py-space-sm outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary shadow-inner" type="text" value="Cabecera Norte / Bordura lindera al bajo"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Zona específica de concentración</span>
+</div>
+</div>
+<!-- Observaciones Agronómicas Detalladas -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Observaciones Agronómicas Técnicas</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">320 caracteres</span>
+</div>
+<!-- Barra de formato simple simulada -->
+<div class="bg-surface-container-low rounded-t-lg px-space-sm py-space-xs flex items-center gap-space-xs text-on-surface-variant">
+<button class="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container" title="Negrita" type="button"><span class="material-symbols-outlined text-[16px]">format_bold</span></button>
+<button class="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container" title="Cursiva" type="button"><span class="material-symbols-outlined text-[16px]">format_italic</span></button>
+<button class="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container" title="Lista con viñetas" type="button"><span class="material-symbols-outlined text-[16px]">format_list_bulleted</span></button>
+<div class="h-4 w-px bg-outline-variant mx-1"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Notas del monitoreador técnico</span>
+</div>
+<textarea class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md rounded-b-lg p-space-sm outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary resize-none shadow-inner leading-relaxed" rows="4">Ejemplares con tallo erecto estriado y hojas alternas lanceoladas. Presenta leve daño mecánico por tránsito pero vigor vegetativo alto. Sin floración visible al momento de la inspección. No responde visualmente a los patrones de Amaranthus sp. ni Conyza sp. habituales del lote.</textarea>
+</div>
+<!-- Alerta de derivación técnica -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">assignment_ind</span>
+<span>Destinatario asignado de la revisión: <strong>Ing. Agr. Juan Lacau</strong> (Notificación automática vía terminal).</span>
+</div>
+</div>
+</div>
+<!-- Barra Inferior de Acciones -->
+<div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-space-sm pt-space-xs">
+<button class="w-full sm:w-auto flex items-center justify-center gap-space-xs py-space-sm px-space-lg rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+<span>Descartar borrador</span>
+</button>
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<button class="w-full sm:w-auto flex items-center justify-center gap-space-sm py-space-sm px-space-xl bg-primary text-on-primary rounded-lg font-label-lg text-label-lg hover:bg-primary-container shadow-md transition-all active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-[20px]">save</span>
+<span>Guardar registro de maleza</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div></main></div><script src="/app.js"></script></body></html>

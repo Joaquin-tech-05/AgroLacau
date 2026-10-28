@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary": "#163505", "tertiary-fixed-dim": "#abd291", "on-tertiary-fixed-variant": "#2e4f1c", "on-primary-fixed-variant": "#22502d", "on-tertiary-fixed": "#082100", "secondary-fixed": "#aef4a6", "primary": "#043616", "primary-container": "#1f4d2b", "on-primary": "#ffffff", "error": "#ba1a1a", "on-tertiary-container": "#96bc7d", "inverse-primary": "#a0d3a6", "inverse-on-surface": "#eff1ee", "secondary-container": "#aef4a6", "on-secondary-fixed-variant": "#0f5218", "surface-container-lowest": "#ffffff", "tertiary-container": "#2c4c1a", "surface-container": "#eceeeb", "on-tertiary": "#ffffff", "on-primary-fixed": "#00210b", "on-surface-variant": "#414941", "background": "#f8faf7", "error-container": "#ffdad6", "surface-container-highest": "#e1e3e0", "surface-variant": "#e1e3e0", "on-error": "#ffffff", "tertiary-fixed": "#c6eeab", "surface-dim": "#d8dbd8", "surface-container-high": "#e7e9e6", "on-primary-container": "#8cbd92", "inverse-surface": "#2e312f", "on-secondary-container": "#327133", "outline": "#717970", "surface-container-low": "#f2f4f1", "on-background": "#191c1b", "surface-bright": "#f8faf7", "primary-fixed-dim": "#a0d3a6", "on-error-container": "#93000a", "on-surface": "#191c1b", "secondary": "#2c6b2d", "on-secondary-fixed": "#002204", "outline-variant": "#c1c9be", "surface-tint": "#3a6843", "primary-fixed": "#bbefc0", "secondary-fixed-dim": "#93d78c", "on-secondary": "#ffffff", "surface": "#f8faf7" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "gutter-desktop": "1.5rem", "margin-tablet": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-md": "1rem", "space-xl": "2rem", "margin-desktop": "2rem", "margin": "1rem", "space-lg": "1.5rem", "gutter": "1rem" }, "fontFamily": { "headline-xl": ["Manrope"], "label-md": ["Manrope"], "body-lg": ["Manrope"], "body-md": ["Manrope"], "headline-xl-mobile": ["Manrope"], "label-sm": ["Manrope"], "data-metric": ["Manrope"], "headline-lg": ["Manrope"], "headline-md": ["Manrope"], "body-sm": ["Manrope"], "headline-lg-mobile": ["Manrope"], "label-lg": ["Manrope"] }, "fontSize": { "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }], "data-metric": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-lg-mobile": ["20px", { "lineHeight": "28px", "letterSpacing": "0", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low z-50 flex flex-col justify-between py-space-lg"><div class="flex flex-col px-space-md"><div class="flex items-center gap-space-sm px-space-sm mb-space-xl"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary"><span class="material-symbols-outlined text-[20px]">potted_plant</span></div><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight text-primary leading-none">AgroLacau</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mt-0.5">La María Elisa</span></div></div><div class="mb-space-lg px-space-xs"><a class="w-full flex items-center justify-center gap-space-sm bg-primary-container text-on-primary py-space-sm px-space-md rounded-lg font-label-lg text-label-lg transition-colors hover:bg-primary shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-path="nuevo-monitoreo" href="#"><span class="material-symbols-outlined text-[18px]">add</span><span>Nuevo monitoreo</span></a></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container-high text-primary font-label-lg"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg transition-colors hover:bg-surface-container-high hover:text-on-surface" data-path="inicio" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Inicio</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg transition-colors hover:bg-surface-container-high hover:text-on-surface" data-path="lotes" href="#"><span class="material-symbols-outlined text-[20px]">nature</span><span>Lotes</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg transition-colors hover:bg-surface-container-high hover:text-on-surface" data-path="monitoreos" href="#"><span class="material-symbols-outlined text-[20px]">assignment</span><span>Monitoreos</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg transition-colors hover:bg-surface-container-high hover:text-on-surface" data-path="catalogos" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span>Catálogos</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg transition-colors hover:bg-surface-container-high hover:text-on-surface" data-path="historial" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span>Historial</span></a></nav></div><div class="px-space-md pt-space-md"><div class="bg-surface rounded-xl p-space-md flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm text-secondary"><span class="material-symbols-outlined text-[16px]">satellite_alt</span><span class="font-label-sm text-label-sm uppercase tracking-wide">Estación Campo</span></div><span class="font-label-md text-label-md text-on-surface">Sector Sur: 19.4°C</span><span class="font-label-sm text-label-sm text-on-surface-variant">Humedad Relativa: 76%</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-margin-desktop"><div class="flex items-center gap-space-md w-96"><div class="w-full flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-lg"><span class="material-symbols-outlined text-[20px] text-outline">search</span><input class="w-full bg-transparent border-0 outline-none text-on-surface placeholder:text-outline font-body-sm text-body-sm" placeholder="Buscar lote, plaga o fenología..." type="text"/></div></div><div class="flex items-center gap-space-lg"><button class="relative p-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-[1px] bg-surface-container-highest"></div><div class="flex items-center gap-space-md"><div class="flex flex-col text-right"><span class="font-label-lg text-label-lg text-on-surface leading-tight">Ing. Agr. Juan Lacau</span><span class="font-label-sm text-label-sm text-on-surface-variant">Administrador Técnico</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="/img/logo.svg"/></div></div></header><main class="w-full pt-16 bg-surface px-margin-desktop"><div class="flex flex-col w-full">
+<!-- Page Context & Status Ribbon -->
+<div class="flex flex-col gap-space-sm pt-space-md pb-space-lg">
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-space-sm py-0.5 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm tracking-wide">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-pulse"></span>
+          Base institucional • Campaña 2024/25
+        </span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">• Rev. Protocolo v4.12</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Última sincronización con app móvil:</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Hoy, 08:34 hs (3 terminales activas)</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<h1 class="font-headline-xl text-headline-xl text-primary tracking-tight">Catálogos y Protocolos Técnicos</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-4xl">
+        Configuración centralizada de adversidades bióticas, fenología y métodos de muestreo para formularios de campo.
+      </p>
+</div>
+</div>
+<!-- Primary Navigation Tabs -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-space-xs border-b-0">
+<button class="group flex items-center gap-space-sm px-space-md py-space-sm rounded-t-xl bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">pest_control</span>
+<span>Plagas</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">8 especies</span>
+</button>
+<button class="group flex items-center gap-space-sm px-space-md py-space-sm rounded-t-xl bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">coronavirus</span>
+<span>Enfermedades</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">5 patologías</span>
+</button>
+<button class="flex items-center gap-space-sm px-space-md py-space-sm rounded-t-xl bg-surface-container-lowest text-primary font-label-lg text-label-lg shadow-sm ring-1 ring-primary/10" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1;">grass</span>
+<span class="font-bold">Malezas</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-bold">12 registradas</span>
+</button>
+<button class="group flex items-center gap-space-sm px-space-md py-space-sm rounded-t-xl bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">timeline</span>
+<span>Estados fenológicos</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">4 cultivos</span>
+</button>
+<button class="group flex items-center gap-space-sm px-space-md py-space-sm rounded-t-xl bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">square_foot</span>
+<span>Métodos y unidades</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">5 métodos</span>
+</button>
+</div>
+<!-- Main Active Tab Content Layout -->
+<div class="relative bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-lg">
+<!-- Information Banner -->
+<div class="flex items-start gap-space-md bg-surface-container-low p-space-md rounded-xl">
+<span class="material-symbols-outlined text-primary text-[22px] mt-0.5">info</span>
+<div class="flex flex-col flex-1">
+<span class="font-label-lg text-label-lg text-primary">Lista institucional de referencia técnica activa</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+          Lista inicial de ejemplo, editable • Los cambios impactan directamente en la planilla agronómica, validaciones de lote y formularios móviles de monitoreo de Estancia La María Elisa.
+        </span>
+</div>
+<span class="px-space-sm py-1 bg-surface-container-high text-on-surface font-label-sm text-label-sm rounded-lg self-center">Modo Editor Autorizado</span>
+</div>
+<!-- Filter & Action Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex flex-wrap items-center gap-space-sm flex-1 min-w-[320px]">
+<!-- Search bar -->
+<div class="relative flex-1 min-w-[260px] max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-[20px] text-outline">search</span>
+<input class="w-full bg-surface-container-low pl-10 pr-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline outline-none focus:ring-2 focus:ring-primary/20" placeholder="Buscar por nombre común o científico (ej. Conyza)..." type="text"/>
+</div>
+<!-- Crop Filter -->
+<div class="flex items-center gap-1.5 bg-surface-container-low px-space-md py-2 rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Cultivo:</span>
+<select class="bg-transparent font-label-md text-label-md text-on-surface outline-none cursor-pointer">
+<option value="todos">Todos los cultivos</option>
+<option value="soja">Soja (1ra y 2da)</option>
+<option value="maiz">Maíz tardío / temprano</option>
+<option value="trigo">Trigo pan</option>
+<option value="girasol">Girasol</option>
+<option value="barbecho">Barbecho químico</option>
+</select>
+</div>
+<!-- Botanical Category Filter -->
+<div class="flex items-center gap-1.5 bg-surface-container-low px-space-md py-2 rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Categoría:</span>
+<select class="bg-transparent font-label-md text-label-md text-on-surface outline-none cursor-pointer">
+<option value="todas">Todas las categorías</option>
+<option value="latifoliada_anual">Latifoliadas anuales</option>
+<option value="latifoliada_invernal">Latifoliadas invernales</option>
+<option value="graminea_anual">Gramíneas anuales</option>
+<option value="graminea_estival">Gramíneas estivales</option>
+<option value="graminea_perenne">Gramíneas perennes</option>
+</select>
+</div>
+</div>
+<!-- Action Button -->
+<button class="flex items-center gap-space-sm bg-primary-container text-on-primary px-space-lg py-2.5 rounded-lg font-label-lg text-label-lg transition-colors hover:bg-primary shadow-sm" id="btnOpenNewMaleza" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>+ Agregar maleza</span>
+</button>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto rounded-xl bg-surface-container-lowest">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+<th class="py-space-md px-space-lg">Nombre común &amp; Resistencia</th>
+<th class="py-space-md px-space-md">Nombre científico</th>
+<th class="py-space-md px-space-md">Tipo / Categoría</th>
+<th class="py-space-md px-space-md">Cultivos asociados</th>
+<th class="py-space-md px-space-md text-center">Estado formulario</th>
+<th class="py-space-md px-space-lg text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface divide-y divide-surface-container">
+<!-- Row 1: Yuyo colorado -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Yuyo colorado</span>
+<span class="material-symbols-outlined text-[16px] text-error" title="Especie prioritaria por presión en la zona">priority_high</span>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                    Resistencia: Glifosato / ALS
+                  </span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="italic text-on-surface font-body-sm text-body-sm">Amaranthus hybridus / palmeri</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface">Latifoliada anual</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Soja 1ra</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Maíz</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+<span class="ml-2 font-label-sm text-label-sm text-secondary font-semibold">Activa</span>
+</label>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="btnEditRow flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Editar</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Rama negra -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Rama negra</span>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                    Resistencia: Glifosato / 2,4-D
+                  </span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="italic text-on-surface font-body-sm text-body-sm">Conyza sumatrensis / bonariensis</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface">Latifoliada invernal/primaveral</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Barbecho</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Soja 1ra</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+<span class="ml-2 font-label-sm text-label-sm text-secondary font-semibold">Activa</span>
+</label>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="btnEditRow flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Editar</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Raigrás -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Raigrás</span>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                    Resistencia: Glifosato / Graminicidas
+                  </span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="italic text-on-surface font-body-sm text-body-sm">Lolium multiflorum</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface">Gramínea anual</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Trigo</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Cebada</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Barbecho</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+<span class="ml-2 font-label-sm text-label-sm text-secondary font-semibold">Activa</span>
+</label>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="btnEditRow flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Editar</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Capín -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Capín</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Biotipo susceptible predominante</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="italic text-on-surface font-body-sm text-body-sm">Echinochloa colona / crus-galli</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface">Gramínea estival</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Soja 1ra</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Maíz</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+<span class="ml-2 font-label-sm text-label-sm text-secondary font-semibold">Activa</span>
+</label>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="btnEditRow flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Editar</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Sorgo de Alepo -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Sorgo de Alepo</span>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                    Resistencia: Glifosato / Haloxifop
+                  </span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="italic text-on-surface font-body-sm text-body-sm">Sorghum halepense</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface">Gramínea perenne</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Soja 1ra</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Maíz</span>
+<span class="px-2 py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Girasol</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+<span class="ml-2 font-label-sm text-label-sm text-secondary font-semibold">Activa</span>
+</label>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="btnEditRow flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Editar</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Maleza sin identificar -->
+<tr class="hover:bg-surface-container-low/60 transition-colors bg-surface-container-low/30">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Maleza sin identificar</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">Plantilla genérica</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Permite registro fotográfico y aviso urgente a cabecera</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="text-outline font-body-sm text-body-sm font-semibold">—</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm text-on-surface-variant">No tipificada</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded-lg bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Todos los cultivos</span>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span class="font-label-sm text-label-sm font-bold">Obligatoria</span>
+</div>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="btnEditRow flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Ver plantilla</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px] opacity-40">lock</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Visual Summary Card for Mobile App Integration -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md pt-space-xs">
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Especies Verificadas</span>
+<span class="font-headline-lg text-headline-lg text-primary">12 Malezas</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Con umbrales de escala 1-5</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">shield_with_heart</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Biotipos con Resistencia</span>
+<span class="font-headline-lg text-headline-lg text-on-error-container">4 Especies</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Glifosato, ALS, Hormonales</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">devices</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Formularios Offline</span>
+<span class="font-headline-lg text-headline-lg text-on-surface">100% Sincro</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Disponibles sin señal 4G</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SLIDE-OVER DRAWER (Lateral derecho para edición/alta rápida) -->
+<div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex justify-end transition-opacity duration-300" id="drawerOverlay">
+<div class="w-full max-w-xl h-full bg-surface-container-lowest shadow-xl flex flex-col justify-between overflow-y-auto transform transition-transform duration-300" id="drawerPanel">
+<!-- Drawer Header -->
+<div class="px-space-xl py-space-lg bg-surface-container-low flex items-center justify-between sticky top-0 z-10">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Ficha agronómica institucional</span>
+<h2 class="font-headline-lg text-headline-lg text-primary" id="drawerTitle">Editar Maleza: Yuyo colorado</h2>
+</div>
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" id="btnCloseDrawer" type="button">
+<span class="material-symbols-outlined text-[22px]">close</span>
+</button>
+</div>
+<!-- Drawer Body: Form Fields -->
+<div class="p-space-xl flex flex-col gap-space-lg flex-1">
+<!-- Field 1: Common Name -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface">Nombre común <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-low px-space-md py-2.5 rounded-lg font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary/20" type="text" value="Yuyo colorado"/>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Visible como rótulo principal en planillas de conteo.</span>
+</div>
+<!-- Field 2: Scientific Name -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface">Nombre científico botánico</label>
+<input class="italic w-full bg-surface-container-low px-space-md py-2.5 rounded-lg font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary/20" type="text" value="Amaranthus hybridus / palmeri"/>
+</div>
+<!-- Field 3: Category Select -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface">Categoría biológica <span class="text-error">*</span></label>
+<select class="w-full bg-surface-container-low px-space-md py-2.5 rounded-lg font-body-md text-body-md text-on-surface outline-none cursor-pointer">
+<option selected="" value="lat_anual">Latifoliada anual</option>
+<option value="lat_invernal">Latifoliada invernal/primaveral</option>
+<option value="gram_anual">Gramínea anual</option>
+<option value="gram_estival">Gramínea estival</option>
+<option value="gram_perenne">Gramínea perenne</option>
+<option value="no_tipificada">No tipificada / Otras</option>
+</select>
+</div>
+<!-- Field 4: Associated Crops (Multi-select Chips) -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface">Cultivos asociados prioritarios</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Filtra la lista según el lote</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md cursor-pointer">
+<input checked="" class="sr-only" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Soja 1ra</span>
+</label>
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md cursor-pointer">
+<input checked="" class="sr-only" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Soja 2da</span>
+</label>
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md cursor-pointer">
+<input checked="" class="sr-only" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Maíz temprano</span>
+</label>
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-label-md text-label-md cursor-pointer hover:bg-surface-container-high">
+<input class="sr-only" type="checkbox"/>
+<span>+ Maíz tardío</span>
+</label>
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md cursor-pointer">
+<input checked="" class="sr-only" type="checkbox"/>
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Barbecho químico</span>
+</label>
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-label-md text-label-md cursor-pointer hover:bg-surface-container-high">
+<input class="sr-only" type="checkbox"/>
+<span>+ Trigo</span>
+</label>
+</div>
+</div>
+<!-- Field 5: Resistance Mechanisms -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface">Mecanismos de resistencia registrados en la zona</label>
+<div class="grid grid-cols-2 gap-2">
+<label class="flex items-center gap-2 p-2.5 rounded-lg bg-error-container/40 text-on-surface font-body-sm text-body-sm cursor-pointer hover:bg-error-container/60 transition-colors">
+<input checked="" class="w-4 h-4 rounded text-error accent-error" type="checkbox"/>
+<span>EPSPS / Glifosato</span>
+</label>
+<label class="flex items-center gap-2 p-2.5 rounded-lg bg-error-container/40 text-on-surface font-body-sm text-body-sm cursor-pointer hover:bg-error-container/60 transition-colors">
+<input checked="" class="w-4 h-4 rounded text-error accent-error" type="checkbox"/>
+<span>ALS (Imazetapir, etc.)</span>
+</label>
+<label class="flex items-center gap-2 p-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-4 h-4 rounded accent-primary" type="checkbox"/>
+<span>PPO (Fomesafen)</span>
+</label>
+<label class="flex items-center gap-2 p-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-4 h-4 rounded accent-primary" type="checkbox"/>
+<span>Auxinas sintéticas (2,4-D)</span>
+</label>
+</div>
+</div>
+<!-- Field 6: Visibility Switch -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Visibilidad en terminales móviles</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Activa para monitoreadores en cuadrículas de campo</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<!-- Field 7: Technical Notes -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface">Comentarios y notas técnicas agronómicas para monitoreadores</label>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-lg font-body-sm text-body-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="Pautas de reconocimiento, altura crítica de corte, umbral de emergencia..." rows="3">Priorizar muestreo en cabeceras y bajos. Verificar presencia de hipocótilo rojizo y evaluar tamaño menor a 5-10 cm para definir ventana de control con residuales.</textarea>
+</div>
+</div>
+<!-- Drawer Footer: Action Buttons -->
+<div class="px-space-xl py-space-md bg-surface-container-low flex items-center justify-end gap-space-md sticky bottom-0 z-10 shadow-sm">
+<button class="px-space-lg py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg transition-colors" id="btnCancelDrawer" type="button">
+          Cancelar
+        </button>
+<button class="px-space-xl py-2.5 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-lg text-label-lg transition-colors flex items-center gap-2 shadow-sm" id="btnSaveDrawer" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Guardar cambios</span>
+</button>
+</div>
+</div>
+</div>
+<!-- COLLAPSIBLE PREVIEWS OF OTHER PROTOCOL SECTIONS -->
+<div class="flex flex-col gap-space-md mt-space-xl mb-space-xl">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-primary">Otros protocolos del sistema de monitoreo</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Acceso directo a las configuraciones complementarias de muestreo oficial.</p>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Edición sincronizada</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Section Preview 1: Plagas -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Protocolo Entomológico</span>
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">8 Especies</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Plagas y Umbrales</h4>
+<div class="flex flex-col gap-2 mt-2">
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Oruga medidora (Rachiplusia nu)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Soja 1ra / Soja 2da</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded text-primary font-bold">Paño vertical</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Chinche de los cuernos (Dichelops)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Maíz temprano</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded text-primary font-bold">Visual en planta</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Oruga militar tardía (Spodoptera frugiperda)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Maíz tardío</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-2 py-0.5 rounded text-primary font-bold">Trampa luz / Daño</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md text-center transition-colors" type="button">
+          Administrar catálogo de plagas
+        </button>
+</div>
+<!-- Section Preview 2: Estados Fenológicos -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Escala Fenológica</span>
+<span class="px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Cultivo activo: Soja</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Escala Fehr &amp; Caviness</h4>
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<span class="font-label-lg text-label-lg font-bold text-primary w-12">VE</span>
+<span class="font-body-sm text-body-sm text-on-surface flex-1">Emergencia de cotiledones</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Vegetativo</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<span class="font-label-lg text-label-lg font-bold text-primary w-12">V3</span>
+<span class="font-body-sm text-body-sm text-on-surface flex-1">3 hojas trifoliadas abiertas</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Vegetativo</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<span class="font-label-lg text-label-lg font-bold text-secondary w-12">R1</span>
+<span class="font-body-sm text-body-sm text-on-surface flex-1">Inicio de floración</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Reproductivo</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<span class="font-label-lg text-label-lg font-bold text-secondary w-12">R3</span>
+<span class="font-body-sm text-body-sm text-on-surface flex-1">Inicio de vainas (5 mm)</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Reproductivo</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<span class="font-label-lg text-label-lg font-bold text-secondary w-12">R5.1</span>
+<span class="font-body-sm text-body-sm text-on-surface flex-1">Inicio de llenado de grano</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Crítico</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md text-center transition-colors" type="button">
+          Configurar fenología por cultivo
+        </button>
+</div>
+<!-- Section Preview 3: Métodos y Unidades -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Muestreo &amp; Cuantificación</span>
+<span class="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">5 Métodos</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Métodos Oficiales de Campo</h4>
+<div class="flex flex-col gap-2 mt-2">
+<div class="p-2.5 rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Paño vertical</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold">ind / m lineal</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cálculo lineal habilitado (espaciamiento 0.52 m y 0.38 m)</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Incidencia / Severidad</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold">% sobre área foliar</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Escalas diagramáticas para Roya y Mancha ojo de perdiz</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Escala visual de malezas</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Grado 0 a 5</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Desde aislada (1) hasta manchón densamente colonizado (5)</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md text-center transition-colors" type="button">
+          Editar unidades y factores de conversión
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function initCatalogoDrawer() {
+    const overlay = document.getElementById('drawerOverlay');
+    const panel = document.getElementById('drawerPanel');
+    const btnClose = document.getElementById('btnCloseDrawer');
+    const btnCancel = document.getElementById('btnCancelDrawer');
+    const btnSave = document.getElementById('btnSaveDrawer');
+    const btnNew = document.getElementById('btnOpenNewMaleza');
+    const editBtns = document.querySelectorAll('.btnEditRow');
+    const drawerTitle = document.getElementById('drawerTitle');
+
+    function openDrawer(titleText) {
+      if (drawerTitle) drawerTitle.textContent = titleText;
+      overlay.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-100');
+        panel.classList.remove('translate-x-full');
+      });
+    }
+
+    function closeDrawer() {
+      overlay.classList.add('opacity-0');
+      overlay.classList.remove('opacity-100');
+      panel.classList.add('translate-x-full');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 300);
+    }
+
+    // Initialize with drawer visible as requested by prompt ('Panel lateral abierto para edición/alta rápida')
+    // We bind interactions cleanly
+    if (btnClose) btnClose.addEventListener('click', closeDrawer);
+    if (btnCancel) btnCancel.addEventListener('click', closeDrawer);
+    if (btnSave) {
+      btnSave.addEventListener('click', () => {
+        const originalText = btnSave.innerHTML;
+        btnSave.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Guardando...';
+        setTimeout(() => {
+          btnSave.innerHTML = originalText;
+          closeDrawer();
+        }, 600);
+      });
+    }
+
+    if (btnNew) {
+      btnNew.addEventListener('click', () => {
+        openDrawer('Nueva Maleza para Formulario');
+      });
+    }
+
+    editBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const row = e.target.closest('tr');
+        const weedName = row ? row.querySelector('span.font-bold')?.textContent : 'Yuyo colorado';
+        openDrawer(`Editar Maleza: ${weedName}`);
+      });
+    });
+
+    // Close on overlay backdrop tap
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeDrawer();
+      }
+    });
+  })();
+</script></main></div><script src="/app.js"></script></body></html>
