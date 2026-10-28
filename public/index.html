@@ -3,10 +3,22 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#1f4d2b"/>
 <title>AgroLacau</title>
-<script>
-  location.replace(window.matchMedia('(max-width: 767px)').matches ? '/movil/splash.html' : '/escritorio/splash.html');
-</script>
+<link rel="icon" href="/img/logo.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/styles.css"/>
 </head>
-<body><noscript><a href="/escritorio/splash.html">Ingresar a AgroLacau</a></noscript></body>
+<body>
+<header class="topbar">
+  <a class="brand" href="#/">
+    <img src="/img/logo.svg" alt="" width="32" height="32"/>
+    <span>AgroLacau</span>
+  </a>
+</header>
+<main id="app"></main>
+<script src="/app.js"></script>
+</body>
 </html>

@@ -1,6 +1,15 @@
 # AgroLacau – Monitoreo agrícola
 
-Front end generado a partir del diseño de Stitch.
+App simple para anotar monitoreos de lotes.
+
+- **Lotes** agrupados por cultivo (Soja 1ra, Soja 2da, Maíz, Girasol, Trigo, Otro).
+- **Nuevo monitoreo** por lote: paneo de **1 metro** o de **½ metro**, conteo de plagas por paneo
+  y resultado automático en **individuos por metro lineal**
+  (total contado ÷ (cantidad de paneos × largo del paño)).
+- Malezas con nivel (Baja / Media / Alta) y notas.
+- Descarga de todos los monitoreos en CSV (se abre con Excel).
+
+Los datos se guardan en el navegador del dispositivo (no hay servidor de datos todavía).
 
 ## Ejecutar en local
 
@@ -10,19 +19,16 @@ Requiere Node.js (sin dependencias extra).
 npm start
 ```
 
-Abrir http://localhost:3000. La app muestra la pantalla de carga y pasa al inicio;
-elige la versión de escritorio o móvil según el ancho de la ventana.
-Índice de todas las pantallas: http://localhost:3000/pantallas.html
+Abrir http://localhost:3000.
 
 ## Estructura
 
-- `public/escritorio/`, `public/movil/` – pantallas del diseño
-- `public/app.js` – navegación entre pantallas
-- `design/capturas/` – capturas de referencia del diseño
-- `server.js` – servidor estático
+- `public/index.html`, `public/styles.css`, `public/app.js` – la app
+- `design/capturas/` – capturas del diseño original de Stitch (referencia)
+- `server.js` – servidor estático para uso local
 
 ## Publicar en Netlify
 
-El archivo `netlify.toml` ya indica que se publique la carpeta `public/` (no hay paso de build).
+`netlify.toml` indica que se publique la carpeta `public/` (no hay paso de build).
 En Netlify: **Add new site → Import an existing project → GitHub →** elegir `Joaquin-tech-05/AgroLacau`
 y la rama a publicar. Cada push a esa rama vuelve a publicar el sitio.
