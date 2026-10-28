@@ -1,0 +1,9 @@
+# Sitio estático: Netlify publica la carpeta public/ tal cual, sin paso de build.
+[build]
+  publish = "public"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"

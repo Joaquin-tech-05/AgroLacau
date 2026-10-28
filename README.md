@@ -20,3 +20,9 @@ elige la versión de escritorio o móvil según el ancho de la ventana.
 - `public/app.js` – navegación entre pantallas
 - `design/capturas/` – capturas de referencia del diseño
 - `server.js` – servidor estático
+
+## Publicar en Netlify
+
+El archivo `netlify.toml` ya indica que se publique la carpeta `public/` (no hay paso de build).
+En Netlify: **Add new site → Import an existing project → GitHub →** elegir `Joaquin-tech-05/AgroLacau`
+y la rama a publicar. Cada push a esa rama vuelve a publicar el sitio.
