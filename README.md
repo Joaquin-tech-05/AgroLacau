@@ -6,8 +6,11 @@ App simple para anotar monitoreos de lotes.
 - **Nuevo monitoreo** por lote: paneo de **1 metro** o de **½ metro**, conteo de plagas por paneo
   y resultado automático en **individuos por metro lineal**
   (total contado ÷ (cantidad de paneos × largo del paño)).
+- **Umbrales de daño** por cultivo y plaga (editables). Semáforo: rojo desde el umbral,
+  amarillo desde la mitad, verde por debajo. Los lotes que superan el umbral aparecen arriba de todo.
+- **Productos aplicados** por lote: producto, tipo, fecha, dosis y notas.
 - Malezas con nivel (Baja / Media / Alta) y notas.
-- Descarga de todos los monitoreos en CSV (se abre con Excel).
+- Descarga de monitoreos y de productos aplicados en CSV (se abre con Excel).
 
 Los datos se guardan en el navegador del dispositivo (no hay servidor de datos todavía).
 

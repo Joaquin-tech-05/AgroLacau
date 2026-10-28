@@ -114,7 +114,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--verde); bor
 .resultado h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; opacity: 0.85; }
 .resultado .nota { font-size: 13px; opacity: 0.75; margin: 0 0 10px; }
 .resultado-fila { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid rgba(255, 255, 255, 0.15); }
-.resultado-fila b { font-size: 18px; }
+.resultado-fila b { font-size: 18px; white-space: nowrap; }
 
 .maleza-fila { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--fondo); }
 .maleza-fila .opciones { grid-column: 1 / -1; }
@@ -123,3 +123,32 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--verde); bor
 .barra-guardar > * { max-width: 688px; margin: 0 auto; display: flex; }
 
 .pie { margin-top: 32px; text-align: center; }
+
+/* Semáforo de umbrales */
+:root { --rojo: #c62828; --amarillo: #e6a100; --verde-ok: #43a047; }
+.punto { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; background: rgba(255, 255, 255, 0.35); flex-shrink: 0; }
+.punto.rojo { background: var(--rojo); }
+.punto.amarillo { background: var(--amarillo); }
+.punto.verde { background: var(--verde-ok); }
+.tarjeta .punto:not(.rojo):not(.amarillo):not(.verde) { background: var(--borde); }
+.resultado .punto { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.resultado-fila span { display: flex; flex-wrap: wrap; align-items: center; }
+.resultado-fila small { flex-basis: 100%; padding-left: 18px; font-size: 12px; opacity: 0.7; }
+.chip { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
+.chip.rojo { background: #fde3e1; color: var(--rojo); }
+.chip.amarillo { background: #fff3cd; color: #8a5a00; }
+.chip.verde { background: var(--verde-claro); color: var(--verde); }
+.item.borde-rojo { border-left: 6px solid var(--rojo); }
+.item.borde-amarillo { border-left: 6px solid var(--amarillo); }
+.item.borde-verde { border-left: 6px solid var(--verde-ok); }
+.titulo-alerta { color: var(--rojo); }
+.contador.rojo { background: #fde3e1; color: var(--rojo); }
+.leyenda { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.leyenda span { display: flex; align-items: center; }
+.umbral-campo { display: flex; align-items: center; gap: 6px; color: var(--texto-suave); font-size: 14px; }
+.umbral-campo input { width: 76px; text-align: center; padding: 8px 4px; font-weight: 700; }
+
+/* Productos aplicados */
+.dosis { font-weight: 500; font-size: 14px; color: var(--texto-suave); }
+.btn.ancho { width: 100%; }
+.pie { display: flex; flex-direction: column; align-items: center; }

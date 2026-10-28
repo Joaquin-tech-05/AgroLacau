@@ -1,20 +1,35 @@
 // AgroLacau – app simple de monitoreo.
-// Pantallas: Lotes (agrupados por cultivo) → Lote → Nuevo monitoreo (paneos de 1 m o ½ m).
+// Pantallas: Lotes (agrupados por cultivo) → Lote → Nuevo monitoreo (paneos de 1 m o ½ m)
+// y productos aplicados; Umbrales de daño por cultivo.
 // Los datos se guardan en el navegador (localStorage).
 (function () {
   var CULTIVOS = ['Soja 1ra', 'Soja 2da', 'Maíz', 'Girasol', 'Trigo', 'Otro'];
 
-  var PLAGAS_POR_CULTIVO = {
-    'Soja 1ra': ['Chinches', 'Orugas defoliadoras', 'Isoca bolillera'],
-    'Soja 2da': ['Chinches', 'Orugas defoliadoras', 'Isoca bolillera'],
-    'Maíz': ['Cogollero', 'Chinches'],
-    'Girasol': ['Orugas defoliadoras', 'Chinches'],
-    'Trigo': ['Pulgones', 'Orugas'],
-    'Otro': ['Chinches', 'Orugas']
+  // Plagas que se cuentan en cada cultivo y su umbral de daño en ind/m lineal (null = sin umbral).
+  // Valores orientativos: se ajustan desde la pantalla "Umbrales de daño".
+  var PLAGAS_SOJA = [
+    { plaga: 'Chinches', umbral: 1 },
+    { plaga: 'Orugas defoliadoras', umbral: 15 },
+    { plaga: 'Isoca bolillera', umbral: 2 }
+  ];
+  var UMBRALES_INICIALES = {
+    'Soja 1ra': PLAGAS_SOJA,
+    'Soja 2da': PLAGAS_SOJA,
+    'Maíz': [{ plaga: 'Cogollero', umbral: null }, { plaga: 'Chinches', umbral: null }],
+    'Girasol': [{ plaga: 'Orugas defoliadoras', umbral: null }, { plaga: 'Chinches', umbral: null }],
+    'Trigo': [{ plaga: 'Pulgones', umbral: null }, { plaga: 'Orugas', umbral: null }],
+    'Otro': [{ plaga: 'Chinches', umbral: null }, { plaga: 'Orugas', umbral: null }]
   };
 
   var MALEZAS = ['Rama negra', 'Yuyo colorado', 'Sorgo de Alepo', 'Capín', 'Pata de ganso', 'Gramón', 'Otra'];
   var NIVELES = ['Baja', 'Media', 'Alta'];
+  var TIPOS_PRODUCTO = ['Herbicida', 'Insecticida', 'Fungicida', 'Fertilizante', 'Coadyuvante', 'Otro'];
+
+  var ESTADOS = {
+    rojo: 'Supera umbral',
+    amarillo: 'Cerca del umbral',
+    verde: 'Bajo umbral'
+  };
 
   var CLAVE = 'agrolacau-v1';
   var app = document.getElementById('app');
@@ -35,12 +50,19 @@
     };
   }
 
+  function umbralesIniciales() { return JSON.parse(JSON.stringify(UMBRALES_INICIALES)); }
+
   function cargar() {
+    var d = null;
     try {
       var guardado = JSON.parse(localStorage.getItem(CLAVE));
-      if (guardado && guardado.lotes) return guardado;
+      if (guardado && guardado.lotes) d = guardado;
     } catch (e) { /* sin acceso a localStorage: se usan datos de ejemplo */ }
-    return datosIniciales();
+    d = d || datosIniciales();
+    // Datos guardados con versiones anteriores de la app no traen estas partes.
+    d.umbrales = d.umbrales || umbralesIniciales();
+    d.aplicaciones = d.aplicaciones || [];
+    return d;
   }
 
   var datos = cargar();
@@ -59,6 +81,19 @@
       .sort(function (a, b) { return b.fecha.localeCompare(a.fecha); });
   }
 
+  function aplicacionesDe(loteId) {
+    return datos.aplicaciones
+      .filter(function (a) { return a.loteId === loteId; })
+      .sort(function (a, b) { return b.fecha.localeCompare(a.fecha); });
+  }
+
+  function plagasDe(cultivo) { return datos.umbrales[cultivo] || (datos.umbrales[cultivo] = []); }
+
+  function umbralDe(cultivo, plaga) {
+    var u = plagasDe(cultivo).find(function (x) { return x.plaga === plaga; });
+    return u && u.umbral > 0 ? u.umbral : null;
+  }
+
   // ---------- Cálculos ----------
 
   // Individuos por metro lineal = total contado / (cantidad de paneos × largo del paño)
@@ -66,6 +101,37 @@
     var total = plaga.conteos.reduce(function (s, n) { return s + (Number(n) || 0); }, 0);
     var metros = plaga.conteos.length * monitoreo.largo;
     return metros ? total / metros : 0;
+  }
+
+  // Semáforo: rojo desde el umbral, amarillo desde la mitad del umbral, verde por debajo.
+  function estadoDe(valor, umbral) {
+    if (!umbral) return null;
+    if (valor >= umbral) return 'rojo';
+    if (valor >= umbral / 2) return 'amarillo';
+    return 'verde';
+  }
+
+  function cultivoDe(m) {
+    var lote = buscarLote(m.loteId);
+    return m.cultivo || (lote && lote.cultivo) || 'Otro';
+  }
+
+  // Resultado de cada plaga de un monitoreo con su umbral y estado.
+  function resultados(m) {
+    var cultivo = cultivoDe(m);
+    return m.plagas.map(function (p) {
+      var valor = porMetro(p, m);
+      var umbral = umbralDe(cultivo, p.nombre);
+      return { nombre: p.nombre, valor: valor, umbral: umbral, estado: estadoDe(valor, umbral) };
+    });
+  }
+
+  var GRAVEDAD = { rojo: 3, amarillo: 2, verde: 1 };
+
+  function peorEstado(m) {
+    return resultados(m).reduce(function (peor, r) {
+      return (GRAVEDAD[r.estado] || 0) > (GRAVEDAD[peor] || 0) ? r.estado : peor;
+    }, null);
   }
 
   // ---------- Formato ----------
@@ -84,18 +150,46 @@
   function nombreLargo(largo) { return largo === 1 ? '1 metro' : '½ metro'; }
 
   function resumenPlagas(m) {
-    var partes = m.plagas
-      .map(function (p) { return { nombre: p.nombre, valor: porMetro(p, m) }; })
-      .filter(function (p) { return p.valor > 0; })
-      .map(function (p) { return p.nombre + ' ' + num(p.valor) + ' ind/m'; });
+    var partes = resultados(m)
+      .filter(function (r) { return r.valor > 0; })
+      .map(function (r) { return r.nombre + ' ' + num(r.valor) + ' ind/m'; });
     return partes.length ? partes.join(' · ') : 'Sin plagas';
+  }
+
+  function chipEstado(estado) {
+    return estado ? '<span class="chip ' + estado + '">' + ESTADOS[estado] + '</span>' : '';
+  }
+
+  // Fila del cuadro de resultados: plaga, valor, umbral y semáforo.
+  function filaResultado(r) {
+    return '<div class="resultado-fila"><span><i class="punto ' + (r.estado || '') + '"></i>' + esc(r.nombre) +
+      '<small>' + (r.umbral ? 'Umbral ' + num(r.umbral) + ' ind/m' : 'Sin umbral cargado') + '</small></span>' +
+      '<b>' + num(r.valor) + ' ind/m</b></div>';
+  }
+
+  function itemLote(l) {
+    var ultimo = monitoreosDe(l.id)[0];
+    var estado = ultimo && peorEstado(ultimo);
+    var detalle = l.ha + ' ha · ' + (ultimo ? 'Último: ' + fecha(ultimo.fecha) + ' – ' + resumenPlagas(ultimo) : 'Sin monitoreos');
+    return '<a class="item ' + (estado ? 'borde-' + estado : '') + '" href="#/lote/' + l.id + '"><div><div class="item-titulo">' + esc(l.nombre) +
+      '</div><div class="item-detalle">' + esc(detalle) + '</div></div><span class="flecha">›</span></a>';
   }
 
   // ---------- Pantalla: Lotes ----------
 
   function vistaLotes() {
     var html = '<h1>Lotes</h1><p class="sub">Ordenados por cultivo</p>' +
-      '<div class="fila-botones"><a class="btn btn-secundario" href="#/lote/nuevo">+ Agregar lote</a></div>';
+      '<div class="fila-botones"><a class="btn btn-secundario" href="#/lote/nuevo">+ Agregar lote</a>' +
+      '<a class="btn btn-texto" href="#/umbrales">Umbrales de daño</a></div>';
+
+    var enAlerta = datos.lotes.filter(function (l) {
+      var ultimo = monitoreosDe(l.id)[0];
+      return ultimo && peorEstado(ultimo) === 'rojo';
+    });
+    if (enAlerta.length) {
+      html += '<h2 class="titulo-alerta">Superan el umbral <span class="contador rojo">' + enAlerta.length + '</span></h2>' +
+        '<div class="lista">' + enAlerta.map(itemLote).join('') + '</div>';
+    }
 
     CULTIVOS.forEach(function (cultivo) {
       var lotes = datos.lotes
@@ -103,19 +197,41 @@
         .sort(function (a, b) { return a.nombre.localeCompare(b.nombre); });
       if (!lotes.length) return;
 
-      html += '<h2>' + esc(cultivo) + ' <span class="contador">' + lotes.length + '</span></h2><div class="lista">';
-      lotes.forEach(function (l) {
-        var ultimo = monitoreosDe(l.id)[0];
-        var detalle = l.ha + ' ha · ' + (ultimo ? 'Último: ' + fecha(ultimo.fecha) + ' – ' + resumenPlagas(ultimo) : 'Sin monitoreos');
-        html += '<a class="item" href="#/lote/' + l.id + '"><div><div class="item-titulo">' + esc(l.nombre) +
-          '</div><div class="item-detalle">' + esc(detalle) + '</div></div><span class="flecha">›</span></a>';
-      });
-      html += '</div>';
+      html += '<h2>' + esc(cultivo) + ' <span class="contador">' + lotes.length + '</span></h2>' +
+        '<div class="lista">' + lotes.map(itemLote).join('') + '</div>';
     });
 
     if (!datos.lotes.length) html += '<p class="vacio">Todavía no hay lotes. Agregá el primero.</p>';
 
-    html += '<div class="pie"><button class="btn-texto" data-accion="exportar">Descargar monitoreos (Excel / CSV)</button></div>';
+    html += '<div class="pie"><button class="btn-texto" data-accion="exportar">Descargar monitoreos (Excel / CSV)</button>' +
+      '<button class="btn-texto" data-accion="exportar-aplicaciones">Descargar productos aplicados (Excel / CSV)</button></div>';
+    app.innerHTML = html;
+  }
+
+  // ---------- Pantalla: Umbrales de daño ----------
+
+  function vistaUmbrales() {
+    var html = '<a class="volver" href="#/">‹ Lotes</a><h1>Umbrales de daño</h1>' +
+      '<p class="sub">En individuos por metro lineal. Dejá vacío si no querés alerta para esa plaga. ' +
+      'Las plagas de cada cultivo son las que aparecen al hacer un monitoreo.</p>' +
+      '<div class="tarjeta leyenda">' +
+      '<span><i class="punto rojo"></i>Supera umbral: igual o más que el umbral</span>' +
+      '<span><i class="punto amarillo"></i>Cerca: desde la mitad del umbral</span>' +
+      '<span><i class="punto verde"></i>Bajo umbral</span></div>';
+
+    CULTIVOS.forEach(function (cultivo) {
+      html += '<h2>' + esc(cultivo) + '</h2><div class="tarjeta">' +
+        plagasDe(cultivo).map(function (u, i) {
+          return '<div class="plaga-fila"><span>' + esc(u.plaga) + '</span><div class="umbral-campo">' +
+            '<input type="number" inputmode="decimal" min="0" step="any" placeholder="—" data-umbral-cultivo="' + esc(cultivo) +
+            '" data-umbral-indice="' + i + '" value="' + (u.umbral == null ? '' : u.umbral) + '" aria-label="Umbral ' + esc(u.plaga) + ' en ' + esc(cultivo) + '"/>' +
+            '<span>ind/m</span><button type="button" class="btn-peligro" data-accion="quitar-plaga-umbral" data-cultivo="' + esc(cultivo) +
+            '" data-indice="' + i + '" aria-label="Quitar ' + esc(u.plaga) + '">✕</button></div></div>';
+        }).join('') +
+        '<button type="button" class="btn-texto" data-accion="agregar-plaga-umbral" data-cultivo="' + esc(cultivo) + '">+ Agregar plaga</button></div>';
+    });
+
+    html += '<div class="fila-botones"><button type="button" class="btn-texto" data-accion="restablecer-umbrales">Volver a los valores iniciales</button></div>';
     app.innerHTML = html;
   }
 
@@ -157,6 +273,7 @@
 
   function vistaLote(lote) {
     var monitoreos = monitoreosDe(lote.id);
+    var aplicaciones = aplicacionesDe(lote.id);
     var html =
       '<a class="volver" href="#/">‹ Lotes</a>' +
       '<h1>' + esc(lote.nombre) + '</h1>' +
@@ -166,13 +283,27 @@
 
     if (monitoreos.length) {
       html += '<div class="lista">' + monitoreos.map(function (m) {
-        return '<a class="item" href="#/monitoreo/' + m.id + '"><div><div class="item-titulo">' + fecha(m.fecha) +
-          (m.estadio ? ' · ' + esc(m.estadio) : '') + '</div><div class="item-detalle">' +
+        var estado = peorEstado(m);
+        return '<a class="item ' + (estado ? 'borde-' + estado : '') + '" href="#/monitoreo/' + m.id + '"><div><div class="item-titulo">' + fecha(m.fecha) +
+          (m.estadio ? ' · ' + esc(m.estadio) : '') + ' ' + chipEstado(estado) + '</div><div class="item-detalle">' +
           esc(resumenPlagas(m)) + '</div><div class="item-detalle">Paneo de ' + nombreLargo(m.largo) + ' · ' +
-          m.cantidadPaneos + ' paneos</div></div><span class="flecha">›</span></a>';
+          m.cantidadPaneos + (m.cantidadPaneos === 1 ? ' paneo' : ' paneos') + '</div></div><span class="flecha">›</span></a>';
       }).join('') + '</div>';
     } else {
       html += '<p class="vacio">Sin monitoreos todavía.</p>';
+    }
+
+    html += '<h2>Productos aplicados <span class="contador">' + aplicaciones.length + '</span></h2>' +
+      '<a class="btn btn-secundario ancho" href="#/lote/' + lote.id + '/aplicacion">+ Registrar producto aplicado</a>';
+    if (aplicaciones.length) {
+      html += '<div class="lista" style="margin-top:8px">' + aplicaciones.map(function (a) {
+        return '<div class="item"><div><div class="item-titulo">' + esc(a.producto) +
+          (a.dosis ? ' <span class="dosis">' + esc(a.dosis) + '</span>' : '') + '</div>' +
+          '<div class="item-detalle">' + fecha(a.fecha) + ' · ' + esc(a.tipo) + (a.notas ? ' · ' + esc(a.notas) : '') + '</div></div>' +
+          '<button type="button" class="btn-peligro" data-accion="borrar-aplicacion" data-id="' + a.id + '" aria-label="Borrar ' + esc(a.producto) + '">✕</button></div>';
+      }).join('') + '</div>';
+    } else {
+      html += '<p class="vacio" style="margin-top:8px">Sin productos registrados.</p>';
     }
 
     html += '<div class="fila-botones" style="margin-top:24px">' +
@@ -181,18 +312,58 @@
     app.innerHTML = html;
   }
 
+  // ---------- Pantalla: Registrar producto aplicado ----------
+
+  function formAplicacion(lote) {
+    // Productos ya usados en cualquier lote, para sugerirlos al escribir.
+    var usados = datos.aplicaciones.map(function (a) { return a.producto; })
+      .filter(function (p, i, arr) { return arr.indexOf(p) === i; }).sort();
+
+    app.innerHTML =
+      '<a class="volver" href="#/lote/' + lote.id + '">‹ ' + esc(lote.nombre) + '</a>' +
+      '<h1>Producto aplicado</h1><p class="sub">' + esc(lote.nombre) + ' · ' + esc(lote.cultivo) + '</p>' +
+      '<form id="form-aplicacion" class="tarjeta">' +
+      '<div class="campo"><label for="a-producto">Producto</label><input id="a-producto" name="producto" required list="productos-usados" placeholder="Ej: Glifosato 66%"/>' +
+      '<datalist id="productos-usados">' + usados.map(function (p) { return '<option value="' + esc(p) + '">'; }).join('') + '</datalist></div>' +
+      '<div class="campos-2">' +
+      '<div class="campo"><label for="a-tipo">Tipo</label><select id="a-tipo" name="tipo">' +
+      TIPOS_PRODUCTO.map(function (t) { return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label for="a-fecha">Fecha</label><input id="a-fecha" name="fecha" type="date" value="' + hoy() + '"/></div>' +
+      '</div>' +
+      '<div class="campo"><label for="a-dosis">Dosis</label><input id="a-dosis" name="dosis" placeholder="Ej: 2 l/ha"/></div>' +
+      '<div class="campo"><label for="a-notas">Notas</label><input id="a-notas" name="notas" placeholder="Opcional"/></div>' +
+      '<button class="btn-principal" type="submit">Guardar producto</button>' +
+      '</form>';
+
+    document.getElementById('form-aplicacion').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = e.target;
+      datos.aplicaciones.push({
+        id: nuevoId(),
+        loteId: lote.id,
+        producto: f.producto.value.trim(),
+        tipo: f.tipo.value,
+        fecha: f.fecha.value || hoy(),
+        dosis: f.dosis.value.trim(),
+        notas: f.notas.value.trim()
+      });
+      guardar();
+      location.hash = '#/lote/' + lote.id;
+    });
+  }
+
   // ---------- Pantalla: Nuevo monitoreo ----------
 
   var borrador = null;
 
   function nuevoBorrador(lote) {
-    var plagas = PLAGAS_POR_CULTIVO[lote.cultivo] || PLAGAS_POR_CULTIVO.Otro;
     return {
       loteId: lote.id,
+      cultivo: lote.cultivo,
       fecha: hoy(),
       estadio: '',
       largo: 1,
-      plagas: plagas.map(function (nombre) { return { nombre: nombre, conteos: [0] }; }),
+      plagas: plagasDe(lote.cultivo).map(function (u) { return { nombre: u.plaga, conteos: [0] }; }),
       malezas: [],
       notas: ''
     };
@@ -264,9 +435,7 @@
     caja.innerHTML = '<h3>Resultado por metro lineal</h3>' +
       '<p class="nota">' + cantidad + ' paneo' + (cantidad === 1 ? '' : 's') + ' de ' + nombreLargo(borrador.largo) +
       ' = ' + num(cantidad * borrador.largo) + ' m revisados</p>' +
-      borrador.plagas.map(function (p) {
-        return '<div class="resultado-fila"><span>' + esc(p.nombre) + '</span><b>' + num(porMetro(p, borrador)) + ' ind/m</b></div>';
-      }).join('');
+      resultados(borrador).map(filaResultado).join('');
   }
 
   function guardarMonitoreo() {
@@ -274,6 +443,7 @@
     datos.monitoreos.push({
       id: nuevoId(),
       loteId: b.loteId,
+      cultivo: b.cultivo,
       fecha: b.fecha || hoy(),
       estadio: b.estadio.trim(),
       largo: b.largo,
@@ -294,11 +464,9 @@
     var html =
       '<a class="volver" href="#/lote/' + lote.id + '">‹ ' + esc(lote.nombre) + '</a>' +
       '<h1>Monitoreo ' + fecha(m.fecha) + '</h1>' +
-      '<p class="sub">' + (m.estadio ? 'Estado ' + esc(m.estadio) + ' · ' : '') + 'Paneo de ' + nombreLargo(m.largo) + ' · ' + m.cantidadPaneos + ' paneos</p>' +
+      '<p class="sub">' + (m.estadio ? 'Estado ' + esc(m.estadio) + ' · ' : '') + 'Paneo de ' + nombreLargo(m.largo) + ' · ' + m.cantidadPaneos + (m.cantidadPaneos === 1 ? ' paneo' : ' paneos') + '</p>' +
       '<div class="resultado"><h3>Resultado por metro lineal</h3><p class="nota">' + num(m.cantidadPaneos * m.largo) + ' m revisados</p>' +
-      m.plagas.map(function (p) {
-        return '<div class="resultado-fila"><span>' + esc(p.nombre) + '</span><b>' + num(porMetro(p, m)) + ' ind/m</b></div>';
-      }).join('') + '</div>' +
+      resultados(m).map(filaResultado).join('') + '</div>' +
       '<h2>Conteo por paneo</h2><div class="tarjeta">' +
       m.plagas.map(function (p) {
         return '<div class="plaga-fila"><span>' + esc(p.nombre) + '</span><span>' + p.conteos.join(' · ') + '</span></div>';
@@ -314,23 +482,36 @@
 
   // ---------- Exportar ----------
 
-  function exportarCsv() {
-    var filas = [['Lote', 'Cultivo', 'Fecha', 'Estado', 'Tipo de paneo', 'Paneos', 'Plaga', 'Conteos', 'Ind/m', 'Malezas', 'Notas']];
+  function exportarMonitoreos() {
+    var filas = [['Lote', 'Cultivo', 'Fecha', 'Estado del cultivo', 'Tipo de paneo', 'Paneos', 'Plaga', 'Conteos', 'Ind/m', 'Umbral', 'Semáforo', 'Malezas', 'Notas']];
     datos.monitoreos.slice().sort(function (a, b) { return a.fecha.localeCompare(b.fecha); }).forEach(function (m) {
-      var lote = buscarLote(m.loteId) || { nombre: '', cultivo: '' };
+      var lote = buscarLote(m.loteId) || { nombre: '' };
       var malezas = m.malezas.map(function (mz) { return mz.nombre + ' (' + mz.nivel + ')'; }).join(', ');
-      m.plagas.forEach(function (p) {
-        filas.push([lote.nombre, lote.cultivo, fecha(m.fecha), m.estadio, nombreLargo(m.largo), m.cantidadPaneos,
-          p.nombre, p.conteos.join(' '), num(porMetro(p, m)), malezas, m.notas]);
+      resultados(m).forEach(function (r, i) {
+        filas.push([lote.nombre, cultivoDe(m), fecha(m.fecha), m.estadio, nombreLargo(m.largo), m.cantidadPaneos,
+          r.nombre, m.plagas[i].conteos.join(' '), num(r.valor), r.umbral ? num(r.umbral) : '', r.estado ? ESTADOS[r.estado] : '', malezas, m.notas]);
       });
     });
+    descargarCsv(filas, 'monitoreos');
+  }
+
+  function exportarAplicaciones() {
+    var filas = [['Lote', 'Cultivo', 'Fecha', 'Producto', 'Tipo', 'Dosis', 'Notas']];
+    datos.aplicaciones.slice().sort(function (a, b) { return a.fecha.localeCompare(b.fecha); }).forEach(function (a) {
+      var lote = buscarLote(a.loteId) || { nombre: '', cultivo: '' };
+      filas.push([lote.nombre, lote.cultivo, fecha(a.fecha), a.producto, a.tipo, a.dosis, a.notas]);
+    });
+    descargarCsv(filas, 'productos-aplicados');
+  }
+
+  function descargarCsv(filas, nombre) {
     var csv = filas.map(function (f) {
       return f.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
     }).join('\r\n');
     var url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'monitoreos-agrolacau-' + hoy() + '.csv';
+    a.download = nombre + '-agrolacau-' + hoy() + '.csv';
     a.click();
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
@@ -344,15 +525,53 @@
     var b = borrador;
     var lote = b && buscarLote(b.loteId);
 
-    if (accion === 'exportar') return exportarCsv();
+    if (accion === 'exportar') return exportarMonitoreos();
+    if (accion === 'exportar-aplicaciones') return exportarAplicaciones();
 
     if (accion === 'borrar-lote') {
       var l = buscarLote(el.dataset.id);
-      if (!confirm('¿Borrar "' + l.nombre + '" y todos sus monitoreos?')) return;
+      if (!confirm('¿Borrar "' + l.nombre + '" con todos sus monitoreos y productos aplicados?')) return;
       datos.lotes = datos.lotes.filter(function (x) { return x.id !== l.id; });
       datos.monitoreos = datos.monitoreos.filter(function (x) { return x.loteId !== l.id; });
+      datos.aplicaciones = datos.aplicaciones.filter(function (x) { return x.loteId !== l.id; });
       guardar();
       location.hash = '#/';
+      return;
+    }
+
+    if (accion === 'borrar-aplicacion') {
+      var ap = datos.aplicaciones.find(function (x) { return x.id === el.dataset.id; });
+      if (!confirm('¿Borrar "' + ap.producto + '" del ' + fecha(ap.fecha) + '?')) return;
+      datos.aplicaciones = datos.aplicaciones.filter(function (x) { return x.id !== ap.id; });
+      guardar();
+      vistaLote(buscarLote(ap.loteId));
+      return;
+    }
+
+    if (accion === 'agregar-plaga-umbral') {
+      var plaga = (prompt('Nombre de la plaga') || '').trim();
+      if (!plaga) return;
+      plagasDe(el.dataset.cultivo).push({ plaga: plaga, umbral: null });
+      guardar();
+      vistaUmbrales();
+      return;
+    }
+
+    if (accion === 'quitar-plaga-umbral') {
+      var lista = plagasDe(el.dataset.cultivo);
+      var u = lista[Number(el.dataset.indice)];
+      if (!confirm('¿Quitar "' + u.plaga + '" de ' + el.dataset.cultivo + '? Los monitoreos ya guardados no cambian.')) return;
+      lista.splice(Number(el.dataset.indice), 1);
+      guardar();
+      vistaUmbrales();
+      return;
+    }
+
+    if (accion === 'restablecer-umbrales') {
+      if (!confirm('¿Volver todos los umbrales y plagas a los valores iniciales?')) return;
+      datos.umbrales = umbralesIniciales();
+      guardar();
+      vistaUmbrales();
       return;
     }
 
@@ -402,6 +621,12 @@
 
   app.addEventListener('input', function (e) {
     var el = e.target;
+    if (el.dataset.umbralCultivo) {
+      var valor = parseFloat(el.value.replace(',', '.'));
+      plagasDe(el.dataset.umbralCultivo)[el.dataset.umbralIndice].umbral = valor > 0 ? valor : null;
+      guardar();
+      return;
+    }
     if (!borrador) return;
     if (el.dataset.campo) {
       borrador[el.dataset.campo] = el.value;
@@ -425,10 +650,12 @@
     var lote, m;
     window.scrollTo(0, 0);
 
+    if (partes[0] === 'umbrales') return vistaUmbrales();
     if (partes[0] === 'lote' && partes[1] === 'nuevo') return formLote(null);
     if (partes[0] === 'lote' && (lote = buscarLote(partes[1]))) {
       if (partes[2] === 'editar') return formLote(lote);
       if (partes[2] === 'monitoreo') return formMonitoreo(lote);
+      if (partes[2] === 'aplicacion') return formAplicacion(lote);
       return vistaLote(lote);
     }
     if (partes[0] === 'monitoreo' && (m = buscarMonitoreo(partes[1]))) return vistaMonitoreo(m);
