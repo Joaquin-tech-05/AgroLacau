@@ -350,7 +350,8 @@
 
     html += '<div class="pie">' +
       '<button class="btn-texto" data-accion="exportar">' + icono('descargar') + 'Descargar monitoreos (CSV para Excel)</button>' +
-      '<button class="btn-texto" data-accion="exportar-aplicaciones">' + icono('descargar') + 'Descargar productos (CSV para Excel)</button></div>';
+      '<button class="btn-texto" data-accion="exportar-aplicaciones">' + icono('descargar') + 'Descargar productos (CSV para Excel)</button>' +
+      '<img class="logo-pie" src="/img/logo-agrolacau.png" alt="Agro Lacau S.A."/></div>';
     app.innerHTML = html;
   }
 

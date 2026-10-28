@@ -32,7 +32,7 @@ Abrir http://localhost:3000.
 ## Estructura
 
 - `public/index.html`, `public/styles.css`, `public/app.js` – la app
-- `public/img/logo.svg` – logo
+- `public/img/` – logo e íconos (generados a partir de `design/logo-original.png`)
 - `server.js` – servidor estático para uso local
 
 ## Publicar en Netlify
