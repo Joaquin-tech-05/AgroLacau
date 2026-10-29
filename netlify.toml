@@ -18,3 +18,8 @@
   for = "/manifest.webmanifest"
   [headers.values]
     Content-Type = "application/manifest+json"
+
+# Función con los datos compartidos del equipo (/api/datos).
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

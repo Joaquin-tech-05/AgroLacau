@@ -17,7 +17,18 @@ App simple para anotar monitoreos de lotes.
 - Malezas con nivel (Baja / Media / Alta) y notas.
 - Descarga de monitoreos y de productos aplicados en CSV (se abre con Excel).
 
-Los datos se guardan en el navegador del dispositivo (no hay servidor de datos todavía).
+Los datos se guardan en cada teléfono y, con la **clave del equipo**, se comparten entre todos los teléfonos.
+
+## Datos compartidos del equipo
+
+- Cada teléfono guarda todo localmente (funciona sin señal) y, cuando hay conexión, sincroniza con
+  `/api/datos`: una función de Netlify (`netlify/functions/datos.mjs`) que guarda los datos en **Netlify Blobs**.
+- Por cada lote, monitoreo o producto gana la versión modificada más recientemente; lo borrado queda borrado
+  (`public/combinar.js`, usado por la app y por el servidor).
+- El acceso se protege con una clave compartida: variable de entorno **`AGROLACAU_CLAVE`** en Netlify
+  (Project configuration → Environment variables). Después de crearla o cambiarla hay que volver a publicar.
+- En local, `npm start` incluye una versión en memoria de `/api/datos` con la clave `local`
+  (o la que indique `AGROLACAU_CLAVE`).
 
 ## Uso sin señal
 
@@ -28,7 +39,7 @@ y subir `VERSION`.
 
 ## Ejecutar en local
 
-Requiere Node.js (sin dependencias extra).
+Requiere Node.js. No hace falta `npm install` para usarla en local (solo Netlify usa `@netlify/blobs`).
 
 ```bash
 npm start
@@ -40,7 +51,9 @@ Abrir http://localhost:3000.
 
 - `public/index.html`, `public/styles.css`, `public/app.js` – la app
 - `public/img/` – logo e íconos (generados a partir de `design/logo-original.png`)
-- `server.js` – servidor estático para uso local
+- `public/combinar.js` – cómo se combinan los datos de dos teléfonos
+- `netlify/functions/datos.mjs`, `servidor/sincronizacion.mjs` – servidor de datos compartidos
+- `server.js` – servidor para uso local
 
 ## Publicar en Netlify
 

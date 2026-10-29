@@ -1,6 +1,6 @@
 // Service worker: guarda la app en el teléfono para que abra sin señal.
 // Al cambiar archivos de la app, subir VERSION para que los teléfonos descarguen la nueva.
-var VERSION = 'v1';
+var VERSION = 'v2';
 var CACHE_APP = 'agrolacau-app-' + VERSION;
 var CACHE_FUENTES = 'agrolacau-fuentes';
 
@@ -9,6 +9,7 @@ var ARCHIVOS_APP = [
   '/index.html',
   '/styles.css',
   '/app.js',
+  '/combinar.js',
   '/manifest.webmanifest',
   '/img/simbolo-blanco.png',
   '/img/logo-agrolacau.png',
@@ -46,7 +47,8 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  if (url.origin !== location.origin) return;
+  // Los datos del equipo nunca se guardan en caché: siempre van al servidor.
+  if (url.origin !== location.origin || url.pathname.indexOf('/api/') === 0) return;
 
   // Archivos de la app: con señal se busca la versión nueva (y se guarda); sin señal, la guardada.
   e.respondWith(

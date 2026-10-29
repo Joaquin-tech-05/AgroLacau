@@ -1,7 +1,8 @@
 // AgroLacau – app simple de monitoreo.
 // Pantallas: Lotes (agrupados por cultivo) → Lote → Monitoreo (paneos de 1 m o ½ m) y productos aplicados;
 // Umbrales de daño por cultivo y etapa. Todo se organiza por campaña (2025/26, 2026/27…).
-// Los datos se guardan en el navegador (localStorage).
+// Los datos se guardan en el teléfono (localStorage) y, si el teléfono está conectado al equipo,
+// se sincronizan con el servidor (/api/datos) para que todos vean lo mismo.
 (function () {
   var CULTIVOS = ['Soja 1ra', 'Soja 2da', 'Maíz', 'Girasol', 'Trigo', 'Otro'];
 
@@ -43,6 +44,11 @@
   var DIAS_PRODUCTOS_RECIENTES = 30;
 
   var CLAVE = 'agrolacau-v1';
+  var CLAVE_EQUIPO = 'agrolacau-clave-equipo';
+  var COLECCIONES = ['lotes', 'monitoreos', 'aplicaciones'];
+
+  // Estado de la sincronización con el equipo.
+  var sync = { estado: 'desconectado', mensaje: '', ultima: null, pendiente: false, enCurso: false, repetir: false, temporizador: null };
   var app = document.getElementById('app');
   var selectorCampania = document.getElementById('campania');
 
@@ -64,6 +70,7 @@
     alerta: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
     mensaje: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
     planilla: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    nube: '<path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z"/>',
     regla: '<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/>'
   };
 
@@ -152,13 +159,36 @@
     });
     d.monitoreos.forEach(function (m) { m.campania = m.campania || campaniaDeFecha(m.fecha); });
     d.aplicaciones.forEach(function (a) { a.campania = a.campania || campaniaDeFecha(a.fecha); });
+    // Para sincronizar: lo borrado se recuerda (id → cuándo) para que no vuelva desde otro teléfono.
+    d.borrados = d.borrados || {};
+    COLECCIONES.forEach(function (col) { d.borrados[col] = d.borrados[col] || {}; });
+    d.umbralesActualizado = d.umbralesActualizado || 0;
     return d;
   }
 
   var datos = cargar();
 
-  function guardar() {
+  function guardarLocal() {
     try { localStorage.setItem(CLAVE, JSON.stringify(datos)); } catch (e) { alert('No se pudo guardar en este navegador.'); }
+  }
+
+  // Guarda en el teléfono y avisa al equipo (si hay conexión).
+  function guardar() {
+    guardarLocal();
+    sync.pendiente = true;
+    programarSincronizacion();
+  }
+
+  // Marca un lote, monitoreo o producto como modificado ahora (gana sobre versiones anteriores).
+  function tocar(registro) { registro.actualizado = Date.now(); }
+  function tocarUmbrales() { datos.umbralesActualizado = Date.now(); }
+
+  function borrarRegistros(col, condicion) {
+    datos[col] = datos[col].filter(function (r) {
+      if (!condicion(r)) return true;
+      datos.borrados[col][r.id] = Date.now();
+      return false;
+    });
   }
 
   function nuevoId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -315,6 +345,7 @@
     }).sort(porNombre);
 
     var html = '<h1>Lotes</h1><p class="sub">Campaña ' + esc(datos.campania) + ' · ordenados por cultivo</p>' +
+      bloqueEstadoSync() +
       '<div class="resumen">' +
       '<div class="dato"><span>Lotes</span><b>' + conCultivo.length + '</b><small>' + num(hectareas) + ' ha</small></div>' +
       '<div class="dato"><span>Monitoreos</span><b>' + monitoreos.length + '</b><small>en la campaña</small></div>' +
@@ -351,6 +382,7 @@
     html += '<div class="pie">' +
       '<button class="btn-texto" data-accion="exportar">' + icono('descargar') + 'Descargar monitoreos (CSV para Excel)</button>' +
       '<button class="btn-texto" data-accion="exportar-aplicaciones">' + icono('descargar') + 'Descargar productos (CSV para Excel)</button>' +
+      '<a class="btn btn-texto" href="#/equipo">' + icono('nube') + 'Compartir con el equipo</a>' +
       '<img class="logo-pie" src="/img/logo-agrolacau.png" alt="Agro Lacau S.A."/></div>';
     app.innerHTML = html;
   }
@@ -413,10 +445,15 @@
     document.getElementById('form-lote').addEventListener('submit', function (e) {
       e.preventDefault();
       var f = e.target;
-      if (!editando) {
+      if (editando) {
+        // Puede haber llegado una versión nueva desde otro teléfono mientras se editaba.
+        lote = buscarLote(lote.id);
+        if (!lote) { alert('Este lote fue borrado desde otro teléfono.'); location.hash = '#/'; return; }
+      } else {
         lote.id = nuevoId();
         datos.lotes.push(lote);
       }
+      tocar(lote);
       lote.nombre = f.nombre.value.trim();
       lote.ha = Number(f.ha.value) || 0;
       if (f.cultivo.value) lote.cultivos[datos.campania] = f.cultivo.value;
@@ -508,10 +545,14 @@
     document.getElementById('form-aplicacion').addEventListener('submit', function (e) {
       e.preventDefault();
       var f = e.target;
-      if (!editando) {
+      if (editando) {
+        a = buscarAplicacion(a.id);
+        if (!a) { alert('Este producto fue borrado desde otro teléfono.'); location.hash = '#/lote/' + lote.id; return; }
+      } else {
         a = { id: nuevoId(), loteId: lote.id, campania: datos.campania };
         datos.aplicaciones.push(a);
       }
+      tocar(a);
       a.producto = f.producto.value.trim();
       a.tipo = f.tipo.value;
       a.fecha = f.fecha.value || hoy();
@@ -553,6 +594,7 @@
   }
 
   function formMonitoreo(lote) {
+    if (!lote) { borrador = null; location.hash = '#/'; return; }
     var b = borrador;
     var cantidad = cantidadPaneos(b) || 1;
     var volver = b.editandoId ? '#/monitoreo/' + b.editandoId : '#/lote/' + lote.id;
@@ -652,11 +694,14 @@
     };
     var m;
     if (b.editandoId) {
-      m = Object.assign(buscarMonitoreo(b.editandoId), valores);
+      m = buscarMonitoreo(b.editandoId);
+      if (!m) { alert('Este monitoreo fue borrado desde otro teléfono.'); borrador = null; location.hash = '#/lote/' + b.loteId; return; }
+      Object.assign(m, valores);
     } else {
       m = Object.assign({ id: nuevoId(), loteId: b.loteId, campania: datos.campania, cultivo: b.cultivo }, valores);
       datos.monitoreos.push(m);
     }
+    tocar(m);
     if (valores.monitoreador) datos.ultimoMonitoreador = valores.monitoreador;
     guardar();
     borrador = null;
@@ -780,14 +825,23 @@
     var lote = b && buscarLote(b.loteId);
 
     if (accion === 'exportar') return exportarMonitoreos();
+    if (accion === 'sincronizar') return sincronizar();
+    if (accion === 'desconectar') {
+      if (!confirm('¿Desconectar este teléfono del equipo? Los datos quedan en el teléfono pero dejan de sincronizarse.')) return;
+      guardarClaveEquipo(null);
+      cambiarEstadoSync('desconectado');
+      return vistaEquipo();
+    }
+    if (accion === 'usar-equipo') return conectar(datosDelEquipo.clave, datosDelEquipo);
+    if (accion === 'sumar-telefono') return conectar(datosDelEquipo.clave, null);
     if (accion === 'exportar-aplicaciones') return exportarAplicaciones();
 
     if (accion === 'borrar-lote') {
       var l = buscarLote(el.dataset.id);
       if (!confirm('¿Borrar "' + l.nombre + '" con todos sus monitoreos y productos aplicados de todas las campañas?')) return;
-      datos.lotes = datos.lotes.filter(function (x) { return x.id !== l.id; });
-      datos.monitoreos = datos.monitoreos.filter(function (x) { return x.loteId !== l.id; });
-      datos.aplicaciones = datos.aplicaciones.filter(function (x) { return x.loteId !== l.id; });
+      borrarRegistros('lotes', function (x) { return x.id === l.id; });
+      borrarRegistros('monitoreos', function (x) { return x.loteId === l.id; });
+      borrarRegistros('aplicaciones', function (x) { return x.loteId === l.id; });
       guardar();
       location.hash = '#/';
       return;
@@ -796,7 +850,7 @@
     if (accion === 'borrar-aplicacion') {
       var ap = buscarAplicacion(el.dataset.id);
       if (!confirm('¿Borrar "' + ap.producto + '" del ' + fecha(ap.fecha) + '?')) return;
-      datos.aplicaciones = datos.aplicaciones.filter(function (x) { return x.id !== ap.id; });
+      borrarRegistros('aplicaciones', function (x) { return x.id === ap.id; });
       guardar();
       location.hash = '#/lote/' + ap.loteId;
       return;
@@ -806,6 +860,7 @@
       var plaga = (prompt('Nombre de la plaga') || '').trim();
       if (!plaga) return;
       plagasDe(el.dataset.cultivo).push(sinUmbral(plaga));
+      tocarUmbrales();
       guardar();
       vistaUmbrales();
       return;
@@ -816,6 +871,7 @@
       var u = lista[Number(el.dataset.indice)];
       if (!confirm('¿Quitar "' + u.plaga + '" de ' + el.dataset.cultivo + '? Los monitoreos ya guardados no cambian.')) return;
       lista.splice(Number(el.dataset.indice), 1);
+      tocarUmbrales();
       guardar();
       vistaUmbrales();
       return;
@@ -824,6 +880,7 @@
     if (accion === 'restablecer-umbrales') {
       if (!confirm('¿Volver todos los umbrales y plagas a los valores iniciales?')) return;
       datos.umbrales = umbralesIniciales();
+      tocarUmbrales();
       guardar();
       vistaUmbrales();
       return;
@@ -832,7 +889,7 @@
     if (accion === 'borrar-monitoreo') {
       var m = buscarMonitoreo(el.dataset.id);
       if (!confirm('¿Borrar este monitoreo?')) return;
-      datos.monitoreos = datos.monitoreos.filter(function (x) { return x.id !== m.id; });
+      borrarRegistros('monitoreos', function (x) { return x.id === m.id; });
       guardar();
       location.hash = '#/lote/' + m.loteId;
       return;
@@ -881,6 +938,7 @@
     if (el.dataset.umbralCultivo) {
       var valor = parseFloat(el.value.replace(',', '.'));
       plagasDe(el.dataset.umbralCultivo)[el.dataset.umbralIndice].umbral[el.dataset.umbralEtapa] = valor > 0 ? valor : null;
+      tocarUmbrales();
       guardar();
       return;
     }
@@ -906,6 +964,207 @@
     formMonitoreo(buscarLote(borrador.loteId));
   });
 
+  // ---------- Sincronización con el equipo ----------
+
+  function claveEquipo() {
+    try { return localStorage.getItem(CLAVE_EQUIPO); } catch (e) { return null; }
+  }
+
+  function guardarClaveEquipo(clave) {
+    try {
+      if (clave) localStorage.setItem(CLAVE_EQUIPO, clave);
+      else localStorage.removeItem(CLAVE_EQUIPO);
+    } catch (e) { /* sin acceso a localStorage */ }
+  }
+
+  // Lo que se comparte con el equipo (la campaña elegida y el último monitoreador quedan en cada teléfono).
+  function datosCompartidos() {
+    return {
+      lotes: datos.lotes,
+      monitoreos: datos.monitoreos,
+      aplicaciones: datos.aplicaciones,
+      umbrales: datos.umbrales,
+      umbralesActualizado: datos.umbralesActualizado,
+      borrados: datos.borrados
+    };
+  }
+
+  // Suma lo que llegó del servidor; devuelve true si cambió algo en este teléfono.
+  function aplicarDelServidor(remoto) {
+    var antes = JSON.stringify(datosCompartidos());
+    Object.assign(datos, window.combinarDatos(datosCompartidos(), remoto));
+    guardarLocal();
+    return JSON.stringify(datosCompartidos()) !== antes;
+  }
+
+  function pedirAlServidor(metodo, clave, cuerpo) {
+    return fetch('/api/datos', {
+      method: metodo,
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'X-Clave': clave },
+      body: cuerpo ? JSON.stringify(cuerpo) : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { estado: r.status, datos: j }; });
+    });
+  }
+
+  function mensajeDeError(r) {
+    if (r.estado === 404) return 'No se encontró el servidor del equipo. ¿La app está publicada en Netlify?';
+    return (r.datos && r.datos.error) || 'Error del servidor (' + r.estado + ').';
+  }
+
+  function programarSincronizacion() {
+    clearTimeout(sync.temporizador);
+    sync.temporizador = setTimeout(sincronizar, 800);
+  }
+
+  function sincronizar() {
+    var clave = claveEquipo();
+    if (!clave) return cambiarEstadoSync('desconectado');
+    if (!navigator.onLine) return cambiarEstadoSync('sin-senal');
+    if (sync.enCurso) { sync.repetir = true; return; }
+    sync.enCurso = true;
+    sync.pendiente = false;
+    cambiarEstadoSync('sincronizando');
+    pedirAlServidor('POST', clave, datosCompartidos()).then(function (r) {
+      if (r.estado === 200) {
+        var cambio = aplicarDelServidor(r.datos);
+        sync.ultima = new Date();
+        cambiarEstadoSync('ok');
+        if (cambio) refrescar();
+      } else {
+        sync.pendiente = true;
+        cambiarEstadoSync(r.estado === 401 ? 'clave-incorrecta' : 'error', mensajeDeError(r));
+      }
+    }).catch(function () {
+      sync.pendiente = true;
+      cambiarEstadoSync(navigator.onLine ? 'error' : 'sin-senal', 'No se pudo conectar con el servidor.');
+    }).then(function () {
+      sync.enCurso = false;
+      if (sync.repetir) { sync.repetir = false; sincronizar(); }
+    });
+  }
+
+  function cambiarEstadoSync(estado, mensaje) {
+    sync.estado = estado;
+    sync.mensaje = mensaje || '';
+    var caja = document.getElementById('estado-sync');
+    if (caja) caja.outerHTML = bloqueEstadoSync();
+  }
+
+  function hora(d) { return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+
+  // Línea de estado (o aviso para conectar) que se muestra en el inicio y en la pantalla Equipo.
+  function bloqueEstadoSync() {
+    var e = sync.estado;
+    if (e === 'desconectado') {
+      return '<div id="estado-sync" class="aviso"><p><b>Este teléfono no comparte datos con el equipo.</b> ' +
+        'Conectalo para ver y cargar los mismos lotes y monitoreos en todos los teléfonos.</p>' +
+        '<a class="btn btn-secundario" href="#/equipo">' + icono('nube') + 'Conectar con el equipo</a></div>';
+    }
+    if (e === 'clave-incorrecta') {
+      return '<div id="estado-sync" class="aviso error"><p><b>La clave del equipo no es correcta o cambió.</b> ' +
+        'Los cambios quedan guardados en este teléfono hasta que vuelvas a conectar.</p>' +
+        '<a class="btn btn-secundario" href="#/equipo">Volver a conectar</a></div>';
+    }
+    var texto = {
+      'sincronizando': 'Sincronizando con el equipo…',
+      'ok': 'Sincronizado con el equipo' + (sync.ultima ? ' · ' + hora(sync.ultima) : ''),
+      'sin-senal': 'Sin señal: ' + (sync.pendiente ? 'los cambios se suben' : 'se sincroniza') + ' al volver la conexión',
+      'error': 'No se pudo sincronizar. ' + sync.mensaje
+    }[e];
+    return '<a id="estado-sync" class="estado-sync ' + e + '" href="#/equipo">' + icono('nube') + '<span>' + esc(texto) + '</span></a>';
+  }
+
+  // ---------- Pantalla: Equipo ----------
+
+  // Datos del equipo leídos al conectar, mientras se elige qué hacer con los de este teléfono.
+  var datosDelEquipo = null;
+
+  function vistaEquipo(mensaje) {
+    var conectado = !!claveEquipo();
+    var html = '<a class="volver" href="#/">' + icono('volver') + 'Lotes</a><h1>Compartir con el equipo</h1>' +
+      '<p class="sub">Con la misma clave, todos los teléfonos ven y cargan los mismos lotes, monitoreos, productos y umbrales. ' +
+      'Sin señal se sigue usando igual: los cambios se suben solos al volver la conexión.</p>';
+
+    if (conectado) {
+      html += bloqueEstadoSync() +
+        '<div class="fila-botones dos"><button class="btn-secundario" data-accion="sincronizar">' + icono('nube') + 'Sincronizar ahora</button>' +
+        '<button class="btn-suave" data-accion="desconectar">Desconectar</button></div>';
+    } else if (datosDelEquipo) {
+      var n = (datosDelEquipo.lotes || []).length;
+      html += '<div class="tarjeta"><p style="margin-top:0"><b>La clave es correcta.</b> El equipo ya tiene ' + n + (n === 1 ? ' lote cargado' : ' lotes cargados') +
+        '. ¿Qué hacemos con los datos que hay en este teléfono?</p>' +
+        '<button class="btn-principal" data-accion="usar-equipo">Usar solo los datos del equipo</button>' +
+        '<p class="sub" style="margin:8px 0 14px">Recomendado si este teléfono tiene solo los lotes de ejemplo o datos de prueba.</p>' +
+        '<button class="btn-suave ancho" data-accion="sumar-telefono">Sumar también los datos de este teléfono</button>' +
+        '<p class="sub" style="margin:8px 0 0">Si tenés monitoreos cargados acá que el equipo todavía no tiene.</p></div>';
+    } else {
+      html += '<form id="form-equipo" class="tarjeta">' +
+        '<div class="campo"><label for="e-clave">Clave del equipo</label>' +
+        '<input id="e-clave" name="clave" type="password" required autocomplete="current-password" placeholder="La misma en todos los teléfonos"/></div>' +
+        (mensaje ? '<p class="error-texto">' + esc(mensaje) + '</p>' : '') +
+        '<button class="btn-principal" type="submit">' + icono('nube') + 'Conectar</button></form>';
+    }
+    app.innerHTML = html;
+
+    var form = document.getElementById('form-equipo');
+    if (form) form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var clave = form.clave.value.trim();
+      var boton = form.querySelector('button');
+      boton.disabled = true;
+      boton.textContent = 'Conectando…';
+      pedirAlServidor('GET', clave).then(function (r) {
+        if (r.estado !== 200) return vistaEquipo(r.estado === 401 ? 'Clave incorrecta.' : mensajeDeError(r));
+        var tieneDatos = (r.datos.lotes || []).length > 0;
+        if (tieneDatos && datos.lotes.length) {
+          datosDelEquipo = r.datos;
+          datosDelEquipo.clave = clave;
+          return vistaEquipo();
+        }
+        conectar(clave, tieneDatos ? r.datos : null);
+      }).catch(function () {
+        vistaEquipo('No se pudo conectar. Revisá que haya señal.');
+      });
+    });
+  }
+
+  // reemplazo: datos del equipo que reemplazan a los de este teléfono (o null para sumarlos).
+  function conectar(clave, reemplazo) {
+    if (reemplazo) {
+      COLECCIONES.forEach(function (col) { datos[col] = reemplazo[col] || []; });
+      datos.borrados = reemplazo.borrados || { lotes: {}, monitoreos: {}, aplicaciones: {} };
+      if (reemplazo.umbrales) {
+        datos.umbrales = reemplazo.umbrales;
+        datos.umbralesActualizado = reemplazo.umbralesActualizado || 0;
+      }
+      guardarLocal();
+    }
+    datosDelEquipo = null;
+    guardarClaveEquipo(clave);
+    sync.estado = 'sincronizando';
+    sincronizar();
+    router();
+  }
+
+  // Vuelve a dibujar la pantalla con los datos nuevos, salvo que se esté completando un formulario.
+  function refrescar() {
+    var ruta = location.hash.replace(/^#\/?/, '');
+    var enFormulario = /(^|\/)(nuevo|editar|monitoreo|aplicacion)$/.test(ruta) || /^aplicacion\//.test(ruta) || ruta === 'equipo';
+    var activo = document.activeElement;
+    var escribiendo = activo && app.contains(activo) && /^(INPUT|TEXTAREA|SELECT)$/.test(activo.tagName);
+    if (enFormulario || escribiendo) return;
+    var y = window.scrollY;
+    router();
+    window.scrollTo(0, y);
+  }
+
+  window.addEventListener('online', sincronizar);
+  window.addEventListener('offline', function () { cambiarEstadoSync(claveEquipo() ? 'sin-senal' : 'desconectado'); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) sincronizar(); });
+  setInterval(function () { if (!document.hidden) sincronizar(); }, 30000);
+
   // ---------- Campaña (encabezado) ----------
 
   function pintarCampanias() {
@@ -916,7 +1175,7 @@
 
   selectorCampania.addEventListener('change', function () {
     datos.campania = selectorCampania.value;
-    guardar();
+    guardarLocal();
     // Un monitoreo nuevo a medio cargar pertenece a la campaña anterior.
     if (borrador && !borrador.editandoId) borrador = null;
     router();
@@ -930,6 +1189,8 @@
     window.scrollTo(0, 0);
     pintarCampanias();
 
+    if (partes[0] !== 'equipo') datosDelEquipo = null;
+    if (partes[0] === 'equipo') return vistaEquipo();
     if (partes[0] === 'umbrales') return vistaUmbrales();
     if (partes[0] === 'lote' && partes[1] === 'nuevo') return formLote(null);
     if (partes[0] === 'lote' && (lote = buscarLote(partes[1]))) {
@@ -953,5 +1214,7 @@
   }
 
   window.addEventListener('hashchange', router);
+  if (claveEquipo()) sync.estado = navigator.onLine ? 'sincronizando' : 'sin-senal';
   router();
+  sincronizar();
 })();
