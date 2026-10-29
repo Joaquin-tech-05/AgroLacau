@@ -7,6 +7,9 @@
 <title>AgroLacau</title>
 <link rel="icon" href="/img/favicon.png" type="image/png"/>
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Agro Lacau"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Marcellus&display=swap" rel="stylesheet"/>
@@ -19,6 +22,7 @@
       <img src="/img/simbolo-blanco.png" alt="" height="38"/>
       <span>Agro Lacau</span>
     </a>
+    <span class="sin-conexion" id="sin-conexion" hidden>Sin señal</span>
     <label class="selector-campania">
       <span>Campaña</span>
       <select id="campania" aria-label="Campaña"></select>
@@ -27,5 +31,14 @@
 </header>
 <main id="app"></main>
 <script src="/app.js"></script>
+<script>
+  // Modo sin señal: guarda la app en el teléfono y avisa cuando no hay conexión.
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+  function avisoConexion() { document.getElementById('sin-conexion').hidden = navigator.onLine; }
+  window.addEventListener('online', avisoConexion);
+  window.addEventListener('offline', avisoConexion);
+  avisoConexion();
+</script>
 </body>
 </html>

@@ -7,3 +7,14 @@
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
+
+# El service worker y la página siempre se revisan, así los teléfonos reciben las actualizaciones.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"

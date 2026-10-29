@@ -19,6 +19,13 @@ App simple para anotar monitoreos de lotes.
 
 Los datos se guardan en el navegador del dispositivo (no hay servidor de datos todavía).
 
+## Uso sin señal
+
+La app es instalable (PWA): después de abrirla una vez con internet, `public/sw.js` la guarda en el teléfono
+y funciona sin señal. Con señal siempre busca la versión nueva de los archivos.
+Si se agregan archivos nuevos que la app necesita sin señal, sumarlos a `ARCHIVOS_APP` en `public/sw.js`
+y subir `VERSION`.
+
 ## Ejecutar en local
 
 Requiere Node.js (sin dependencias extra).
