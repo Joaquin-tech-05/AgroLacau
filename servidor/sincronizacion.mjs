@@ -6,6 +6,13 @@ import combinar from '../public/combinar.js';
 var CLAVE_BLOB = 'datos';
 var INTENTOS = 5;
 
+// La clave no distingue mayúsculas ni espacios al principio o al final (el teclado del celular
+// suele poner la primera letra en mayúscula). Llega codificada para admitir ñ y tildes.
+function normalizarClave(clave) {
+  try { clave = decodeURIComponent(clave || ''); } catch (e) { /* ya venía sin codificar */ }
+  return clave.trim().toLowerCase();
+}
+
 function respuesta(estado, cuerpo) {
   return new Response(JSON.stringify(cuerpo), {
     status: estado,
@@ -14,10 +21,10 @@ function respuesta(estado, cuerpo) {
 }
 
 export async function manejar(req, store, claveEquipo) {
-  if (!claveEquipo) {
+  if (!claveEquipo || !normalizarClave(claveEquipo)) {
     return respuesta(500, { error: 'Falta configurar la variable AGROLACAU_CLAVE en Netlify.' });
   }
-  if (req.headers.get('x-clave') !== claveEquipo) {
+  if (normalizarClave(req.headers.get('x-clave')) !== normalizarClave(claveEquipo)) {
     return respuesta(401, { error: 'Clave incorrecta.' });
   }
 

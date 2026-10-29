@@ -826,6 +826,12 @@
 
     if (accion === 'exportar') return exportarMonitoreos();
     if (accion === 'sincronizar') return sincronizar();
+    if (accion === 'ver-clave') {
+      var campo = document.getElementById('e-clave');
+      campo.type = campo.type === 'password' ? 'text' : 'password';
+      el.textContent = campo.type === 'password' ? 'Ver' : 'Ocultar';
+      return;
+    }
     if (accion === 'desconectar') {
       if (!confirm('¿Desconectar este teléfono del equipo? Los datos quedan en el teléfono pero dejan de sincronizarse.')) return;
       guardarClaveEquipo(null);
@@ -1001,7 +1007,7 @@
     return fetch('/api/datos', {
       method: metodo,
       cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', 'X-Clave': clave },
+      headers: { 'Content-Type': 'application/json', 'X-Clave': encodeURIComponent(clave) },
       body: cuerpo ? JSON.stringify(cuerpo) : undefined
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { estado: r.status, datos: j }; });
@@ -1102,7 +1108,10 @@
     } else {
       html += '<form id="form-equipo" class="tarjeta">' +
         '<div class="campo"><label for="e-clave">Clave del equipo</label>' +
-        '<input id="e-clave" name="clave" type="password" required autocomplete="current-password" placeholder="La misma en todos los teléfonos"/></div>' +
+        '<div class="campo-clave"><input id="e-clave" name="clave" type="password" required autocomplete="current-password" ' +
+        'autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="La misma en todos los teléfonos"/>' +
+        '<button type="button" class="btn-texto" data-accion="ver-clave">Ver</button></div>' +
+        '<p class="sub" style="margin:6px 0 0">No importan mayúsculas ni minúsculas.</p></div>' +
         (mensaje ? '<p class="error-texto">' + esc(mensaje) + '</p>' : '') +
         '<button class="btn-principal" type="submit">' + icono('nube') + 'Conectar</button></form>';
     }

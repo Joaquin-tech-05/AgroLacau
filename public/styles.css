@@ -216,3 +216,5 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--oliva); out
 .aviso.error { background: var(--rojo-claro); border-color: #f2c9c3; }
 .error-texto { color: var(--rojo); font-weight: 600; margin: -4px 0 12px; }
 button:disabled { opacity: 0.6; cursor: default; }
+.campo-clave { display: flex; gap: 6px; align-items: center; }
+.campo-clave input { flex: 1; }
