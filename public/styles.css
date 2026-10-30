@@ -219,3 +219,48 @@ button:disabled { opacity: 0.6; cursor: default; }
 .campo-clave { display: flex; gap: 6px; align-items: center; }
 .campo-clave input { flex: 1; }
 .opcional { font-weight: 500; color: var(--texto-suave); }
+
+/* ---------- Mapa y gráficos ---------- */
+
+.boton-campo { margin-top: 8px; }
+.pestanias { margin: 10px 0 14px; }
+.pestanias a { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 8px; border-radius: 10px; font-weight: 700; color: var(--texto-suave); text-decoration: none; }
+.pestanias a.activo { background: var(--verde-oscuro); color: var(--blanco); box-shadow: var(--sombra); }
+
+.mapa { height: 62vh; min-height: 340px; border-radius: var(--radio); overflow: hidden; border: 1px solid var(--borde); box-shadow: var(--sombra); background: #dfe3dc; z-index: 0; }
+.banda-gps { display: flex; align-items: flex-start; gap: 8px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; line-height: 1.35; }
+.banda-gps .ic { color: #2a78d6; margin-top: 1px; }
+.banda-gps small { display: block; color: var(--texto-suave); font-size: 12px; margin-top: 2px; }
+.banda-gps .btn-texto { padding: 0 4px; font-size: 14px; display: inline; }
+.banda-gps.aviso { background: var(--amarillo-claro); border-color: #f1dca6; }
+.banda-gps.error { background: var(--rojo-claro); border-color: #f2c9c3; }
+.leyenda-mapa { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--texto-suave); margin: 8px 2px 0; }
+.leyenda-mapa span { display: flex; align-items: center; }
+
+.leaflet-container { font-family: Manrope, system-ui, sans-serif; }
+.leaflet-tooltip.etiqueta-lote { background: rgba(29, 36, 32, 0.78); color: var(--blanco); border: none; box-shadow: none; font-weight: 700; font-size: 12px; padding: 2px 7px; border-radius: 7px; }
+.leaflet-tooltip.etiqueta-lote::before { display: none; }
+.boton-gps { width: 46px; height: 46px; padding: 0; border-radius: 12px; background: var(--blanco); color: #2a78d6; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3); }
+.boton-gps .ic { width: 24px; height: 24px; }
+.popup-lote { font-size: 14px; line-height: 1.45; }
+.popup-lote b { font-size: 16px; color: var(--verde-oscuro); }
+.popup-botones { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.popup-botones .btn, .popup-botones button { width: 100%; padding: 9px 10px; font-size: 14px; }
+.leaflet-popup-content a.btn-secundario { color: var(--blanco); }
+.leaflet-popup-content a.btn-texto { color: var(--oliva); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.tarjeta .chips { margin: 12px 0 0; }
+.chip-filtro { background: var(--blanco); color: var(--texto-suave); border: 1px solid var(--borde); border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 600; }
+.chip-filtro.activo { background: var(--oliva-claro); color: var(--verde-oscuro); border-color: var(--oliva); }
+.chip-filtro:not(.activo) .muestra { opacity: 0.35; }
+.muestra { display: inline-block; width: 14px; height: 4px; border-radius: 2px; }
+.muestra.rayada { background: repeating-linear-gradient(90deg, var(--texto-suave) 0 4px, transparent 4px 7px); }
+.titulo-grafico { font-size: 14px; color: var(--texto-suave); margin-bottom: 10px; }
+.titulo-grafico b { color: var(--verde-oscuro); }
+.lienzo-grafico { position: relative; height: 300px; }
+.tabla-datos { margin: 4px 0 12px; }
+.tabla-datos summary { cursor: pointer; color: var(--oliva); font-weight: 700; padding: 6px 0; }
+.tabla-datos table { width: 100%; border-collapse: collapse; background: var(--blanco); border-radius: 10px; overflow: hidden; font-size: 14px; margin-top: 6px; }
+.tabla-datos th, .tabla-datos td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--fondo); }
+.tabla-datos th { background: var(--oliva-suave); color: var(--verde-oscuro); }

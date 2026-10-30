@@ -70,6 +70,9 @@
     alerta: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
     mensaje: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
     planilla: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    mapa: '<path d="M9 3 3 5.5V21l6-2.5 6 2.5 6-2.5V3l-6 2.5Z"/><path d="M9 3v15.5M15 5.5V21"/>',
+    grafico: '<path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/>',
+    ubicacion: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/>',
     nube: '<path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z"/>',
     regla: '<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/>'
   };
@@ -376,7 +379,8 @@
       '<div class="dato"><span>Productos</span><b>' + aplicaciones.length + '</b><small>aplicados</small></div>' +
       '</div>' +
       '<div class="fila-botones dos"><a class="btn btn-secundario" href="#/lote/nuevo">' + icono('mas') + 'Agregar lote</a>' +
-      '<a class="btn btn-suave" href="#/umbrales">' + icono('ajustes') + 'Umbrales</a></div>';
+      '<a class="btn btn-suave" href="#/umbrales">' + icono('ajustes') + 'Umbrales</a></div>' +
+      '<a class="btn btn-suave ancho boton-campo" href="#/campo/mapa">' + icono('mapa') + 'Mapa y gráficos</a>';
 
     if (enAlerta.length) {
       html += '<h2 class="titulo-alerta">' + icono('alerta') + 'Superan el umbral <span class="contador rojo">' + enAlerta.length + '</span></h2>' +
@@ -545,6 +549,9 @@
     }
 
     html += '<div class="fila-botones" style="margin-top:24px">' +
+      (lote.contorno && lote.contorno.length >= 3
+        ? '<a class="btn btn-texto" href="#/campo/mapa/' + lote.id + '">' + icono('mapa') + 'Ver en el mapa</a>'
+        : '<a class="btn btn-texto" href="#/campo/dibujar/' + lote.id + '">' + icono('mapa') + 'Dibujar en el mapa</a>') +
       '<a class="btn btn-texto" href="#/lote/' + lote.id + '/editar">' + icono('editar') + 'Editar lote</a>' +
       '<button class="btn-peligro" data-accion="borrar-lote" data-id="' + lote.id + '">' + icono('borrar') + 'Borrar lote</button></div>';
     app.innerHTML = html;
@@ -862,6 +869,7 @@
 
     if (accion === 'exportar') return exportarMonitoreos();
     if (accion === 'sincronizar') return sincronizar();
+    if (accionCampo(accion, el)) return;
     if (accion === 'ver-clave') {
       var campo = document.getElementById('e-clave');
       campo.type = campo.type === 'password' ? 'text' : 'password';
@@ -975,6 +983,99 @@
     }
   });
 
+  // Acciones de la pantalla Mapa y gráficos; devuelve true si la manejó.
+  function accionCampo(accion, el) {
+    var d = campo.dibujo;
+    var lote;
+    switch (accion) {
+      case 'ver-en-mapa':
+        lote = buscarLote(el.dataset.id);
+        if (campo.mapa && lote && lote.contorno) {
+          window.scrollTo(0, 0);
+          campo.mapa.fitBounds(lote.contorno, { padding: [30, 30], maxZoom: 17 });
+        }
+        return true;
+      case 'guiar':
+        campo.destinoId = el.dataset.id;
+        if (campo.mapa) campo.mapa.closePopup();
+        iniciarGps();
+        if (campo.posicion) {
+          // Muestra a la vez dónde estás y el lote al que vas.
+          lote = buscarLote(campo.destinoId);
+          campo.mapa.fitBounds([[campo.posicion.lat, campo.posicion.lng]].concat(lote.contorno), { padding: [40, 40], maxZoom: 17 });
+          actualizarBandaGps();
+        } else {
+          campo.centrarEnGps = true;
+          banda('Buscando tu ubicación para guiarte…');
+        }
+        return true;
+      case 'dejar-de-guiar':
+        campo.destinoId = null;
+        actualizarBandaGps();
+        return true;
+      case 'punto-gps':
+        if (!d) return true;
+        if (!campo.posicion) { iniciarGps(); banda('Todavía no hay señal de GPS. Esperá unos segundos al aire libre.', 'aviso'); return true; }
+        d.puntos.push([campo.posicion.lat, campo.posicion.lng]);
+        pintarDibujo();
+        return true;
+      case 'deshacer-punto':
+        if (d) { d.puntos.pop(); pintarDibujo(); }
+        return true;
+      case 'guardar-contorno':
+        if (!d || d.puntos.length < 3) return true;
+        lote = buscarLote(d.loteId);
+        if (!lote) { alert('Este lote fue borrado desde otro teléfono.'); location.hash = '#/campo/mapa'; return true; }
+        lote.contorno = d.puntos.map(function (p) { return [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6]; });
+        if (!lote.ha) lote.ha = Math.round(hectareas(lote.contorno) * 10) / 10;
+        tocar(lote);
+        guardar();
+        location.hash = '#/campo/mapa/' + lote.id;
+        return true;
+      case 'borrar-contorno':
+        lote = buscarLote(el.dataset.id);
+        if (!lote || !confirm('¿Quitar "' + lote.nombre + '" del mapa? El lote y sus monitoreos no se borran.')) return true;
+        delete lote.contorno;
+        tocar(lote);
+        guardar();
+        location.hash = '#/campo/mapa';
+        return true;
+      case 'vista-grafico':
+        campo.vistaGrafico = el.dataset.valor;
+        vistaGraficos();
+        return true;
+      case 'resumen-grafico':
+        campo.resumen = el.dataset.valor;
+        vistaGraficos();
+        return true;
+      case 'serie-grafico':
+        campo.seriesOcultas[el.dataset.valor] = !campo.seriesOcultas[el.dataset.valor];
+        el.classList.toggle('activo', !campo.seriesOcultas[el.dataset.valor]);
+        actualizarSeries();
+        return true;
+      case 'umbrales-grafico':
+        campo.umbralesVisibles = !campo.umbralesVisibles;
+        el.classList.toggle('activo', campo.umbralesVisibles);
+        actualizarSeries();
+        return true;
+    }
+    return false;
+  }
+
+  function actualizarSeries() {
+    if (!campo.grafico) return;
+    campo.grafico.data.datasets.forEach(function (ds) {
+      ds.hidden = !!campo.seriesOcultas[ds.plaga] || (ds.esUmbral && !campo.umbralesVisibles);
+    });
+    campo.grafico.update();
+  }
+
+  // Los globos del mapa frenan la propagación de los toques: sus botones se escuchan antes.
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('.popup-lote [data-accion]');
+    if (el) accionCampo(el.dataset.accion, el);
+  }, true);
+
   app.addEventListener('input', function (e) {
     var el = e.target;
     if (el.dataset.umbralCultivo) {
@@ -1001,10 +1102,605 @@
 
   app.addEventListener('change', function (e) {
     var el = e.target;
+    if (el.dataset.accion === 'lote-grafico') {
+      campo.loteGrafico = el.value;
+      return vistaGraficos();
+    }
     if (el.dataset.accion !== 'agregar-maleza' || !el.value || !borrador) return;
     borrador.malezas.push({ nombre: el.value, nivel: 'Baja' });
     formMonitoreo(buscarLote(borrador.loteId));
   });
+
+  // ---------- Pantalla: Mapa y gráficos ----------
+
+  // Las librerías del mapa y de los gráficos se cargan solo al entrar a esta pantalla.
+  var LIBRERIAS = {
+    leaflet: { js: '/vendor/leaflet/leaflet.js', css: '/vendor/leaflet/leaflet.css', global: 'L' },
+    chart: { js: '/vendor/chartjs/chart.umd.js', global: 'Chart' }
+  };
+  var cargando = {};
+
+  function cargarLibreria(nombre) {
+    var lib = LIBRERIAS[nombre];
+    if (window[lib.global]) return Promise.resolve();
+    if (cargando[nombre]) return cargando[nombre];
+    if (lib.css) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = lib.css;
+      document.head.appendChild(link);
+    }
+    cargando[nombre] = new Promise(function (ok, error) {
+      var script = document.createElement('script');
+      script.src = lib.js;
+      script.onload = ok;
+      script.onerror = function () { delete cargando[nombre]; error(); };
+      document.head.appendChild(script);
+    });
+    return cargando[nombre];
+  }
+
+  // Imagen satelital y capa de caminos/nombres (Esri). Se guardan en el teléfono a medida que se miran.
+  var CAPA_SATELITE = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  var CAPA_CAMINOS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}';
+  var CAPA_NOMBRES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+  var VISTA_INICIAL = { centro: [-34.6, -60.9], zoom: 7 };
+  var COLOR_ESTADO = { rojo: '#c0392b', amarillo: '#d99a06', verde: '#3f8f4a' };
+  var COLOR_SIN_DATOS = '#e7ebe2';
+
+  // Estado de la pantalla (se limpia al salir).
+  var campo = {
+    mapa: null,
+    capaLotes: null,
+    gps: null,          // id de watchPosition
+    posicion: null,     // { lat, lng, precision }
+    marcaGps: null,
+    circuloGps: null,
+    destinoId: null,    // lote al que se quiere llegar
+    lineaDestino: null,
+    centrarEnGps: false,
+    dibujo: null,       // { loteId, puntos: [[lat, lng]], capa }
+    grafico: null,
+    vistaGrafico: 'plagas',
+    loteGrafico: null,
+    seriesOcultas: {},
+    umbralesVisibles: true,
+    resumen: 'estado'
+  };
+
+  function salirDeCampo() {
+    if (campo.gps != null) navigator.geolocation.clearWatch(campo.gps);
+    if (campo.mapa) campo.mapa.remove();
+    if (campo.grafico) campo.grafico.destroy();
+    campo.gps = null;
+    campo.mapa = null;
+    campo.capaLotes = null;
+    campo.marcaGps = null;
+    campo.circuloGps = null;
+    campo.lineaDestino = null;
+    campo.dibujo = null;
+    campo.grafico = null;
+  }
+
+  function pestaniasCampo(activa) {
+    return '<div class="opciones pestanias">' +
+      '<a class="' + (activa === 'mapa' ? 'activo' : '') + '" href="#/campo/mapa">' + icono('mapa') + 'Mapa</a>' +
+      '<a class="' + (activa === 'graficos' ? 'activo' : '') + '" href="#/campo/graficos">' + icono('grafico') + 'Gráficos</a></div>';
+  }
+
+  // ----- Geometría (los lotes miden pocos km: alcanza con una proyección plana local) -----
+
+  var M_POR_GRADO_LAT = 110574;
+
+  function aMetros(punto, latRef) {
+    return [punto[1] * 111320 * Math.cos(latRef * Math.PI / 180), punto[0] * M_POR_GRADO_LAT];
+  }
+
+  function hectareas(puntos) {
+    if (puntos.length < 3) return 0;
+    var latRef = puntos[0][0];
+    var xy = puntos.map(function (p) { return aMetros(p, latRef); });
+    var area = 0;
+    for (var i = 0; i < xy.length; i++) {
+      var j = (i + 1) % xy.length;
+      area += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
+    }
+    return Math.abs(area) / 2 / 10000;
+  }
+
+  function centroDe(puntos) {
+    var lat = 0;
+    var lng = 0;
+    puntos.forEach(function (p) { lat += p[0]; lng += p[1]; });
+    return [lat / puntos.length, lng / puntos.length];
+  }
+
+  // ¿El punto está dentro del contorno? (algoritmo del rayo)
+  function dentroDe(punto, contorno) {
+    var dentro = false;
+    for (var i = 0, j = contorno.length - 1; i < contorno.length; j = i++) {
+      var a = contorno[i];
+      var b = contorno[j];
+      if ((a[1] > punto[1]) !== (b[1] > punto[1]) &&
+          punto[0] < (b[0] - a[0]) * (punto[1] - a[1]) / (b[1] - a[1]) + a[0]) dentro = !dentro;
+    }
+    return dentro;
+  }
+
+  function distanciaMetros(a, b) {
+    var rad = Math.PI / 180;
+    var dLat = (b[0] - a[0]) * rad;
+    var dLng = (b[1] - a[1]) * rad;
+    var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 6371000 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+
+  function rumbo(a, b) {
+    var rad = Math.PI / 180;
+    var y = Math.sin((b[1] - a[1]) * rad) * Math.cos(b[0] * rad);
+    var x = Math.cos(a[0] * rad) * Math.sin(b[0] * rad) - Math.sin(a[0] * rad) * Math.cos(b[0] * rad) * Math.cos((b[1] - a[1]) * rad);
+    var grados = (Math.atan2(y, x) / rad + 360) % 360;
+    return ['norte', 'noreste', 'este', 'sureste', 'sur', 'suroeste', 'oeste', 'noroeste'][Math.round(grados / 45) % 8];
+  }
+
+  function textoDistancia(m) { return m < 1000 ? Math.round(m / 10) * 10 + ' m' : num(m / 1000) + ' km'; }
+
+  function lotesDibujados() { return datos.lotes.filter(function (l) { return l.contorno && l.contorno.length >= 3; }); }
+
+  function estadoLote(l) {
+    var ultimo = cultivoEn(l) && monitoreosDe(l.id)[0];
+    return ultimo ? peorEstado(ultimo) : null;
+  }
+
+  // ----- Mapa -----
+
+  function vistaMapa(loteFoco) {
+    var dibujados = lotesDibujados();
+    var sinDibujar = datos.lotes.filter(function (l) { return !l.contorno || l.contorno.length < 3; }).sort(porNombre);
+    var html = '<h1>Mapa y gráficos</h1>' + pestaniasCampo('mapa') +
+      '<div id="banda-gps" class="banda-gps"></div>' +
+      '<div id="mapa" class="mapa"></div>' +
+      '<div class="leyenda-mapa"><span><i class="punto rojo"></i>Supera umbral</span><span><i class="punto amarillo"></i>Cerca</span>' +
+      '<span><i class="punto verde"></i>Bajo umbral</span><span><i class="punto"></i>Sin monitoreos</span></div>';
+
+    if (sinDibujar.length) {
+      html += '<h2>Lotes sin dibujar <span class="contador">' + sinDibujar.length + '</span></h2><div class="lista">' +
+        sinDibujar.map(function (l) {
+          return '<a class="item" href="#/campo/dibujar/' + l.id + '"><span class="item-icono">' + icono('editar') + '</span>' +
+            '<div class="item-cuerpo"><div class="item-titulo">' + esc(l.nombre) + '</div>' +
+            '<div class="item-detalle">Tocá para dibujar su contorno en el mapa</div></div>' + icono('flecha') + '</a>';
+        }).join('') + '</div>';
+    }
+    if (dibujados.length) {
+      html += '<h2>Lotes en el mapa <span class="contador">' + dibujados.length + '</span></h2><div class="lista">' +
+        dibujados.sort(porNombre).map(function (l) {
+          return '<div class="item"><div class="item-cuerpo"><div class="item-titulo">' + esc(l.nombre) + '</div>' +
+            '<div class="item-detalle">' + num(hectareas(l.contorno)) + ' ha dibujadas</div></div>' +
+            '<button type="button" class="btn-suave" data-accion="ver-en-mapa" data-id="' + l.id + '">Ver</button>' +
+            '<a class="btn btn-texto" href="#/campo/dibujar/' + l.id + '" aria-label="Redibujar ' + esc(l.nombre) + '">' + icono('editar') + '</a></div>';
+        }).join('') + '</div>';
+    }
+    app.innerHTML = html;
+    banda('Cargando mapa…');
+
+    cargarLibreria('leaflet').then(function () {
+      if (!document.getElementById('mapa')) return;
+      crearMapa();
+      pintarLotesEnMapa();
+      var foco = loteFoco && loteFoco.contorno && loteFoco.contorno.length >= 3 ? loteFoco : null;
+      if (foco) campo.mapa.fitBounds(foco.contorno, { padding: [30, 30], maxZoom: 17 });
+      else if (dibujados.length) campo.mapa.fitBounds(dibujados.map(function (l) { return l.contorno; }), { padding: [20, 20], maxZoom: 16 });
+      else campo.centrarEnGps = true;
+      iniciarGps();
+    }).catch(function () {
+      banda('No se pudo cargar el mapa. Abrí esta pantalla una vez con señal para guardarlo en el teléfono.', 'error');
+    });
+  }
+
+  function crearMapa() {
+    var L = window.L;
+    campo.mapa = L.map('mapa', { zoomControl: true, attributionControl: true })
+      .setView(VISTA_INICIAL.centro, VISTA_INICIAL.zoom);
+    var opciones = { maxNativeZoom: 18, maxZoom: 20, crossOrigin: true };
+    L.tileLayer(CAPA_SATELITE, Object.assign({ attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics' }, opciones)).addTo(campo.mapa);
+    var referencias = L.layerGroup([L.tileLayer(CAPA_CAMINOS, opciones), L.tileLayer(CAPA_NOMBRES, opciones)]).addTo(campo.mapa);
+    L.control.layers(null, { 'Caminos y nombres': referencias }, { position: 'topright' }).addTo(campo.mapa);
+    campo.capaLotes = L.layerGroup().addTo(campo.mapa);
+    // El punto de ubicación va por encima de los nombres de los lotes.
+    campo.mapa.createPane('gps').style.zIndex = 660;
+
+    // Botón "dónde estoy".
+    var BotonGps = L.Control.extend({
+      options: { position: 'bottomright' },
+      onAdd: function () {
+        var boton = L.DomUtil.create('button', 'boton-gps');
+        boton.type = 'button';
+        boton.title = 'Dónde estoy';
+        boton.setAttribute('aria-label', 'Centrar el mapa en dónde estoy');
+        boton.innerHTML = icono('ubicacion');
+        L.DomEvent.disableClickPropagation(boton);
+        L.DomEvent.on(boton, 'click', function () {
+          if (campo.posicion) campo.mapa.setView([campo.posicion.lat, campo.posicion.lng], Math.max(campo.mapa.getZoom(), 16));
+          else { campo.centrarEnGps = true; iniciarGps(); }
+        });
+        return boton;
+      }
+    });
+    campo.mapa.addControl(new BotonGps());
+    campo.mapa.on('click', function (e) {
+      if (!campo.dibujo) return;
+      campo.dibujo.puntos.push([e.latlng.lat, e.latlng.lng]);
+      pintarDibujo();
+    });
+  }
+
+  function pintarLotesEnMapa() {
+    if (!campo.mapa) return;
+    var L = window.L;
+    campo.capaLotes.clearLayers();
+    lotesDibujados().forEach(function (l) {
+      if (campo.dibujo && campo.dibujo.loteId === l.id) return;
+      var estado = estadoLote(l);
+      var poligono = L.polygon(l.contorno, {
+        color: '#ffffff',
+        weight: 2,
+        fillColor: estado ? COLOR_ESTADO[estado] : COLOR_SIN_DATOS,
+        fillOpacity: estado ? 0.45 : 0.3
+      });
+      poligono.bindTooltip(esc(l.nombre), { permanent: true, direction: 'center', className: 'etiqueta-lote' });
+      if (!campo.dibujo) poligono.bindPopup(function () { return popupLote(l); }, { maxWidth: 260 });
+      poligono.addTo(campo.capaLotes);
+    });
+  }
+
+  function popupLote(l) {
+    var cultivo = cultivoEn(l);
+    var ultimo = cultivo && monitoreosDe(l.id)[0];
+    var centro = centroDe(l.contorno);
+    return '<div class="popup-lote"><b>' + esc(l.nombre) + '</b>' +
+      '<div>' + (cultivo ? esc(cultivoConVariedad(cultivo, variedadEn(l))) + ' · ' : '') + num(hectareas(l.contorno)) + ' ha</div>' +
+      '<div>' + (ultimo ? 'Último monitoreo: ' + fecha(ultimo.fecha) + ' ' + chipEstado(peorEstado(ultimo)) : 'Sin monitoreos en la campaña') + '</div>' +
+      '<div class="popup-botones">' +
+      '<a class="btn btn-secundario" href="#/lote/' + l.id + '">Ver lote</a>' +
+      '<button type="button" class="btn-suave" data-accion="guiar" data-id="' + l.id + '">Guiarme</button>' +
+      '<a class="btn btn-texto" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' +
+      centro[0].toFixed(6) + ',' + centro[1].toFixed(6) + '">Abrir en Google Maps</a></div></div>';
+  }
+
+  // ----- GPS -----
+
+  function iniciarGps() {
+    if (campo.gps != null) return;
+    if (!navigator.geolocation) return banda('Este teléfono no permite usar la ubicación.', 'error');
+    campo.gps = navigator.geolocation.watchPosition(posicionNueva, function (error) {
+      campo.gps = null;
+      banda(error.code === 1
+        ? 'Para ver dónde estás, permití el acceso a la ubicación en la configuración del navegador.'
+        : 'Buscando señal de GPS… Probá al aire libre.', 'aviso');
+    }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+    if (!campo.posicion) banda('Buscando tu ubicación…');
+  }
+
+  function posicionNueva(pos) {
+    if (!campo.mapa) return;
+    var L = window.L;
+    var p = { lat: pos.coords.latitude, lng: pos.coords.longitude, precision: pos.coords.accuracy };
+    campo.posicion = p;
+    var punto = [p.lat, p.lng];
+    if (!campo.marcaGps) {
+      campo.circuloGps = L.circle(punto, { radius: p.precision, color: '#2a78d6', weight: 1, fillOpacity: 0.12, interactive: false }).addTo(campo.mapa);
+      campo.marcaGps = L.circleMarker(punto, { pane: 'gps', radius: 8, color: '#ffffff', weight: 3, fillColor: '#2a78d6', fillOpacity: 1, interactive: false }).addTo(campo.mapa);
+    } else {
+      campo.marcaGps.setLatLng(punto);
+      campo.circuloGps.setLatLng(punto).setRadius(p.precision);
+    }
+    if (campo.centrarEnGps) {
+      campo.centrarEnGps = false;
+      campo.mapa.setView(punto, 16);
+    }
+    actualizarBandaGps();
+  }
+
+  function actualizarBandaGps() {
+    var p = campo.posicion;
+    if (campo.dibujo) return pintarDibujo();
+    if (!p) return;
+    var punto = [p.lat, p.lng];
+    var dibujados = lotesDibujados();
+    var aqui = dibujados.find(function (l) { return dentroDe(punto, l.contorno); });
+    var destino = campo.destinoId && buscarLote(campo.destinoId);
+    var html;
+
+    if (campo.lineaDestino) { campo.lineaDestino.remove(); campo.lineaDestino = null; }
+    if (destino && destino.contorno) {
+      var centro = centroDe(destino.contorno);
+      if (aqui && aqui.id === destino.id) {
+        html = '<b>Llegaste a ' + esc(destino.nombre) + '</b>';
+        campo.destinoId = null;
+      } else {
+        campo.lineaDestino = window.L.polyline([punto, centro], { color: '#ffffff', weight: 3, dashArray: '6 8', interactive: false }).addTo(campo.mapa);
+        html = 'Hacia <b>' + esc(destino.nombre) + '</b>: ' + textoDistancia(distanciaMetros(punto, centro)) + ' al ' + rumbo(punto, centro) +
+          ' <button type="button" class="btn-texto" data-accion="dejar-de-guiar">Terminar</button>';
+      }
+    } else if (aqui) {
+      html = 'Estás en <b>' + esc(aqui.nombre) + '</b>' + (cultivoEn(aqui) ? ' · ' + esc(cultivoConVariedad(cultivoEn(aqui), variedadEn(aqui))) : '') +
+        ' <a class="btn-texto" href="#/lote/' + aqui.id + '">Ver lote</a>';
+    } else if (dibujados.length) {
+      var cercano = dibujados.map(function (l) { return { lote: l, d: distanciaMetros(punto, centroDe(l.contorno)) }; })
+        .sort(function (a, b) { return a.d - b.d; })[0];
+      html = 'Fuera de los lotes · el más cercano es <b>' + esc(cercano.lote.nombre) + '</b>, a ' + textoDistancia(cercano.d) + ' al ' + rumbo(punto, centroDe(cercano.lote.contorno));
+    } else {
+      html = 'Tu ubicación está marcada en azul. Dibujá los lotes para saber en cuál estás.';
+    }
+    banda(html + '<small>Precisión del GPS: ±' + Math.round(p.precision) + ' m</small>', 'ok', true);
+  }
+
+  function banda(contenido, tipo, esHtml) {
+    var caja = document.getElementById('banda-gps');
+    if (!caja) return;
+    caja.className = 'banda-gps ' + (tipo || '');
+    caja.innerHTML = icono('ubicacion') + '<span>' + (esHtml ? contenido : esc(contenido)) + '</span>';
+  }
+
+  // ----- Dibujar el contorno de un lote -----
+
+  function vistaDibujo(lote) {
+    app.innerHTML = '<a class="volver" href="#/campo/mapa">' + icono('volver') + 'Mapa</a>' +
+      '<h1>Dibujar ' + esc(lote.nombre) + '</h1>' +
+      '<div id="banda-gps" class="banda-gps"></div>' +
+      '<div id="mapa" class="mapa"></div>' +
+      '<div class="fila-botones dos">' +
+      '<button type="button" class="btn-suave" data-accion="punto-gps">' + icono('ubicacion') + 'Punto donde estoy</button>' +
+      '<button type="button" class="btn-suave" data-accion="deshacer-punto">' + icono('volver') + 'Deshacer punto</button></div>' +
+      '<div class="fila-botones dos">' +
+      '<a class="btn btn-texto" href="#/campo/mapa">Cancelar</a>' +
+      '<button type="button" class="btn-principal" data-accion="guardar-contorno" id="guardar-contorno" disabled>Guardar contorno</button></div>' +
+      (lote.contorno ? '<div class="fila-botones"><button type="button" class="btn-peligro" data-accion="borrar-contorno" data-id="' + lote.id + '">' +
+        icono('borrar') + 'Quitar el lote del mapa</button></div>' : '');
+    banda('Cargando mapa…');
+
+    cargarLibreria('leaflet').then(function () {
+      if (!document.getElementById('mapa')) return;
+      crearMapa();
+      campo.dibujo = { loteId: lote.id, puntos: [], capa: window.L.layerGroup().addTo(campo.mapa) };
+      pintarLotesEnMapa();
+      var dibujados = lotesDibujados();
+      if (lote.contorno && lote.contorno.length >= 3) campo.mapa.fitBounds(lote.contorno, { padding: [30, 30] });
+      else if (dibujados.length) campo.mapa.fitBounds(dibujados.map(function (l) { return l.contorno; }), { padding: [20, 20], maxZoom: 16 });
+      else campo.centrarEnGps = true;
+      // El contorno anterior se muestra de referencia mientras se dibuja el nuevo.
+      if (lote.contorno) window.L.polygon(lote.contorno, { color: '#ffffff', weight: 1, dashArray: '4 6', fill: false, interactive: false }).addTo(campo.mapa);
+      iniciarGps();
+      pintarDibujo();
+    }).catch(function () {
+      banda('No se pudo cargar el mapa. Abrí esta pantalla una vez con señal para guardarlo en el teléfono.', 'error');
+    });
+  }
+
+  function pintarDibujo() {
+    var d = campo.dibujo;
+    if (!d) return;
+    var L = window.L;
+    d.capa.clearLayers();
+    if (d.puntos.length >= 2) {
+      L.polygon(d.puntos, { color: '#ffffff', weight: 3, fillColor: '#526344', fillOpacity: 0.35, interactive: false }).addTo(d.capa);
+    }
+    d.puntos.forEach(function (p, i) {
+      L.circleMarker(p, { radius: 7, color: '#244331', weight: 2, fillColor: i === 0 ? '#ffffff' : '#e7ebe2', fillOpacity: 1, interactive: false }).addTo(d.capa);
+    });
+    var n = d.puntos.length;
+    banda(n === 0
+      ? 'Tocá el mapa en cada esquina del lote, en orden. También podés caminar el borde y usar “Punto donde estoy”.'
+      : n + (n === 1 ? ' punto' : ' puntos') + (n >= 3 ? ' · ' + num(hectareas(d.puntos)) + ' ha' : ' · faltan ' + (3 - n) + ' para cerrar el lote'),
+      n >= 3 ? 'ok' : '');
+    var guardarBtn = document.getElementById('guardar-contorno');
+    if (guardarBtn) guardarBtn.disabled = n < 3;
+  }
+
+  // ----- Gráficos -----
+
+  // Colores fijos por plaga (siempre en el mismo orden, nunca rotados).
+  var COLORES_SERIE = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'];
+  var GRILLA = '#e3e6e0';
+  var TEXTO_EJES = '#5f6a60';
+
+  function colorDePlaga(cultivo, nombre) {
+    var orden = plagasDe(cultivo).map(function (u) { return u.plaga; });
+    var i = orden.indexOf(nombre);
+    if (i === -1) i = orden.length + (nombre.length % 3);
+    return COLORES_SERIE[i % COLORES_SERIE.length];
+  }
+
+  function vistaGraficos() {
+    if (campo.grafico) { campo.grafico.destroy(); campo.grafico = null; }
+    var conMonitoreos = datos.lotes.filter(function (l) { return cultivoEn(l) && monitoreosDe(l.id).length; }).sort(porNombre);
+    if (!buscarLote(campo.loteGrafico) || !monitoreosDe(campo.loteGrafico).length) {
+      var masReciente = conMonitoreos.slice().sort(function (a, b) { return monitoreosDe(b.id)[0].fecha.localeCompare(monitoreosDe(a.id)[0].fecha); })[0];
+      campo.loteGrafico = masReciente ? masReciente.id : null;
+    }
+    var html = '<h1>Mapa y gráficos</h1>' + pestaniasCampo('graficos') +
+      '<div class="opciones" id="vista-grafico">' +
+      '<button type="button" data-accion="vista-grafico" data-valor="plagas" class="' + (campo.vistaGrafico === 'plagas' ? 'activo' : '') + '">Plagas y umbral</button>' +
+      '<button type="button" data-accion="vista-grafico" data-valor="resumen" class="' + (campo.vistaGrafico === 'resumen' ? 'activo' : '') + '">Resumen de la campaña</button></div>';
+
+    if (campo.vistaGrafico === 'plagas') {
+      if (!conMonitoreos.length) {
+        app.innerHTML = html + '<p class="vacio">Todavía no hay monitoreos en la campaña ' + esc(datos.campania) + '.</p>';
+        return;
+      }
+      html += '<div class="campo"><label for="g-lote">Lote</label><select id="g-lote" data-accion="lote-grafico">' +
+        conMonitoreos.map(function (l) {
+          return '<option value="' + l.id + '"' + (l.id === campo.loteGrafico ? ' selected' : '') + '>' + esc(l.nombre) + ' · ' + esc(cultivoEn(l)) + '</option>';
+        }).join('') + '</select></div>';
+    } else {
+      html += '<div class="chips" role="group" aria-label="Qué mostrar">' + [['estado', 'Estado de los lotes'], ['productos', 'Productos por tipo'], ['hectareas', 'Hectáreas por cultivo']].map(function (o) {
+        return '<button type="button" class="chip-filtro' + (campo.resumen === o[0] ? ' activo' : '') + '" data-accion="resumen-grafico" data-valor="' + o[0] + '">' + o[1] + '</button>';
+      }).join('') + '</div>';
+    }
+    html += '<div class="tarjeta tarjeta-grafico"><div id="titulo-grafico" class="titulo-grafico"></div>' +
+      '<div class="lienzo-grafico"><canvas id="grafico" role="img"></canvas></div><div id="series-grafico" class="chips"></div></div>' +
+      '<details class="tabla-datos"><summary>Ver los datos en tabla</summary><div id="tabla-grafico"></div></details>';
+    app.innerHTML = html;
+
+    cargarLibreria('chart').then(function () {
+      if (!document.getElementById('grafico')) return;
+      if (campo.vistaGrafico === 'plagas') graficoPlagas(buscarLote(campo.loteGrafico));
+      else graficoResumen();
+    }).catch(function () {
+      document.querySelector('.lienzo-grafico').innerHTML = '<p class="vacio">No se pudo cargar el gráfico. Abrí esta pantalla una vez con señal.</p>';
+    });
+  }
+
+  function opcionesBase() {
+    window.Chart.defaults.font.family = 'Manrope, system-ui, sans-serif';
+    window.Chart.defaults.color = TEXTO_EJES;
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 250 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1d2420',
+          padding: 10,
+          cornerRadius: 8,
+          titleFont: { weight: '700' },
+          boxPadding: 4
+        }
+      }
+    };
+  }
+
+  function graficoPlagas(lote) {
+    var monitoreos = monitoreosDe(lote.id).slice().reverse();
+    var cultivo = cultivoEn(lote);
+    var nombres = [];
+    monitoreos.forEach(function (m) { m.plagas.forEach(function (p) { if (nombres.indexOf(p.nombre) === -1) nombres.push(p.nombre); }); });
+    var tiempo = function (m) { return new Date(m.fecha + 'T12:00:00').getTime(); };
+
+    var series = [];
+    nombres.forEach(function (nombre) {
+      var color = colorDePlaga(cultivo, nombre);
+      var valores = monitoreos.map(function (m) {
+        var r = resultados(m).find(function (x) { return x.nombre === nombre; });
+        return r ? { x: tiempo(m), y: Math.round(r.valor * 10) / 10, umbral: r.umbral } : null;
+      }).filter(Boolean);
+      series.push({
+        label: nombre, plaga: nombre, data: valores, borderColor: color, backgroundColor: color,
+        borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBorderColor: '#ffffff', pointBorderWidth: 2, tension: 0,
+        hidden: !!campo.seriesOcultas[nombre]
+      });
+      var umbrales = valores.filter(function (v) { return v.umbral; }).map(function (v) { return { x: v.x, y: v.umbral }; });
+      if (umbrales.length) {
+        series.push({
+          label: 'Umbral ' + nombre.toLowerCase(), plaga: nombre, esUmbral: true, data: umbrales, borderColor: color, backgroundColor: color,
+          borderWidth: 2, borderDash: [6, 5], pointRadius: 0, pointHoverRadius: 0, stepped: 'before',
+          hidden: !campo.umbralesVisibles || !!campo.seriesOcultas[nombre]
+        });
+      }
+    });
+
+    document.getElementById('titulo-grafico').innerHTML = '<b>' + esc(lote.nombre) + '</b> · individuos por metro lineal en cada monitoreo';
+    document.getElementById('grafico').setAttribute('aria-label', 'Evolución de plagas en ' + lote.nombre);
+    var opciones = opcionesBase();
+    opciones.interaction = { mode: 'index', intersect: false };
+    opciones.scales = {
+      x: {
+        type: 'linear',
+        grid: { display: false },
+        border: { color: GRILLA },
+        ticks: {
+          maxTicksLimit: 6,
+          callback: function (v) { var d = new Date(v); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); }
+        }
+      },
+      y: { beginAtZero: true, grid: { color: GRILLA }, border: { display: false }, title: { display: true, text: 'ind/m' } }
+    };
+    // El eje de fechas va del primer al último monitoreo, con un margen de dos días.
+    opciones.scales.x.min = tiempo(monitoreos[0]) - 2 * 864e5;
+    opciones.scales.x.max = tiempo(monitoreos[monitoreos.length - 1]) + 2 * 864e5;
+    opciones.plugins.tooltip.callbacks = {
+      title: function (items) { return items.length ? fecha(new Date(items[0].parsed.x).toISOString().slice(0, 10)) : ''; },
+      label: function (item) { return ' ' + item.dataset.label + ': ' + num(item.parsed.y) + ' ind/m'; }
+    };
+    campo.grafico = new window.Chart(document.getElementById('grafico'), { type: 'line', data: { datasets: series }, options: opciones });
+
+    // Botones para mostrar u ocultar cada plaga y las líneas de umbral (sirven de leyenda).
+    var hayUmbrales = series.some(function (s) { return s.esUmbral; });
+    document.getElementById('series-grafico').innerHTML = nombres.map(function (nombre) {
+      return '<button type="button" class="chip-filtro' + (campo.seriesOcultas[nombre] ? '' : ' activo') + '" data-accion="serie-grafico" data-valor="' + esc(nombre) + '">' +
+        '<i class="muestra" style="background:' + colorDePlaga(cultivo, nombre) + '"></i>' + esc(nombre) + '</button>';
+    }).join('') + (hayUmbrales ? '<button type="button" class="chip-filtro' + (campo.umbralesVisibles ? ' activo' : '') + '" data-accion="umbrales-grafico">' +
+      '<i class="muestra rayada"></i>Umbrales</button>' : '');
+
+    document.getElementById('tabla-grafico').innerHTML = '<table><thead><tr><th>Fecha</th>' +
+      nombres.map(function (n) { return '<th>' + esc(n) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      monitoreos.slice().reverse().map(function (m) {
+        var rs = resultados(m);
+        return '<tr><td>' + fecha(m.fecha) + '</td>' + nombres.map(function (n) {
+          var r = rs.find(function (x) { return x.nombre === n; });
+          return '<td>' + (r ? num(r.valor) + (r.umbral ? ' <small>(umbral ' + num(r.umbral) + ')</small>' : '') : '—') + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  function graficoResumen() {
+    var lotes = datos.lotes.filter(function (l) { return cultivoEn(l); });
+    var etiquetas;
+    var valores;
+    var colores;
+    var titulo;
+    var unidad;
+
+    if (campo.resumen === 'estado') {
+      var cuenta = { rojo: 0, amarillo: 0, verde: 0, sin: 0 };
+      lotes.forEach(function (l) { var e = estadoLote(l); cuenta[e || 'sin']++; });
+      etiquetas = ['Supera umbral', 'Cerca del umbral', 'Bajo umbral', 'Sin monitoreos'];
+      valores = [cuenta.rojo, cuenta.amarillo, cuenta.verde, cuenta.sin];
+      colores = [COLOR_ESTADO.rojo, COLOR_ESTADO.amarillo, COLOR_ESTADO.verde, '#b9c0b4'];
+      titulo = 'Estado de los lotes según su último monitoreo';
+      unidad = 'lotes';
+    } else if (campo.resumen === 'productos') {
+      var aplicaciones = datos.aplicaciones.filter(function (a) { return a.campania === datos.campania; });
+      etiquetas = TIPOS_PRODUCTO.filter(function (t) { return aplicaciones.some(function (a) { return a.tipo === t; }); });
+      valores = etiquetas.map(function (t) { return aplicaciones.filter(function (a) { return a.tipo === t; }).length; });
+      colores = '#526344';
+      titulo = 'Productos aplicados por tipo';
+      unidad = 'aplicaciones';
+    } else {
+      etiquetas = CULTIVOS.filter(function (c) { return lotes.some(function (l) { return cultivoEn(l) === c; }); });
+      valores = etiquetas.map(function (c) {
+        return lotes.filter(function (l) { return cultivoEn(l) === c; }).reduce(function (s, l) { return s + (Number(l.ha) || 0); }, 0);
+      });
+      colores = '#526344';
+      titulo = 'Hectáreas por cultivo';
+      unidad = 'ha';
+    }
+
+    document.getElementById('titulo-grafico').innerHTML = '<b>' + titulo + '</b> · campaña ' + esc(datos.campania);
+    document.getElementById('grafico').setAttribute('aria-label', titulo);
+    document.getElementById('series-grafico').innerHTML = '';
+    if (!etiquetas.length || !valores.some(function (v) { return v > 0; })) {
+      document.querySelector('.lienzo-grafico').innerHTML = '<p class="vacio">Todavía no hay datos para mostrar.</p>';
+      document.getElementById('tabla-grafico').innerHTML = '';
+      return;
+    }
+    var opciones = opcionesBase();
+    opciones.scales = {
+      x: { grid: { display: false }, border: { color: GRILLA } },
+      y: { beginAtZero: true, grid: { color: GRILLA }, border: { display: false }, ticks: { precision: 0 } }
+    };
+    opciones.plugins.tooltip.callbacks = { label: function (item) { return ' ' + num(item.parsed.y) + ' ' + unidad; } };
+    campo.grafico = new window.Chart(document.getElementById('grafico'), {
+      type: 'bar',
+      data: { labels: etiquetas, datasets: [{ data: valores, backgroundColor: colores, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 56 }] },
+      options: opciones
+    });
+    document.getElementById('tabla-grafico').innerHTML = '<table><tbody>' + etiquetas.map(function (e, i) {
+      return '<tr><td>' + esc(e) + '</td><td>' + num(valores[i]) + ' ' + unidad + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  }
 
   // ---------- Sincronización con el equipo ----------
 
@@ -1196,6 +1892,11 @@
   // Vuelve a dibujar la pantalla con los datos nuevos, salvo que se esté completando un formulario.
   function refrescar() {
     var ruta = location.hash.replace(/^#\/?/, '');
+    if (/^campo/.test(ruta)) {
+      if (campo.mapa && !campo.dibujo) { pintarLotesEnMapa(); actualizarBandaGps(); }
+      if (campo.grafico) vistaGraficos();
+      return;
+    }
     var enFormulario = /(^|\/)(nuevo|editar|monitoreo|aplicacion)$/.test(ruta) || /^aplicacion\//.test(ruta) || ruta === 'equipo';
     var activo = document.activeElement;
     var escribiendo = activo && app.contains(activo) && /^(INPUT|TEXTAREA|SELECT)$/.test(activo.tagName);
@@ -1233,10 +1934,16 @@
     var lote, m, a;
     window.scrollTo(0, 0);
     pintarCampanias();
+    salirDeCampo();
 
     if (partes[0] !== 'equipo') datosDelEquipo = null;
     if (partes[0] === 'equipo') return vistaEquipo();
     if (partes[0] === 'umbrales') return vistaUmbrales();
+    if (partes[0] === 'campo') {
+      if (partes[1] === 'graficos') return vistaGraficos();
+      if (partes[1] === 'dibujar' && (lote = buscarLote(partes[2]))) return vistaDibujo(lote);
+      return vistaMapa(buscarLote(partes[2]));
+    }
     if (partes[0] === 'lote' && partes[1] === 'nuevo') return formLote(null);
     if (partes[0] === 'lote' && (lote = buscarLote(partes[1]))) {
       if (partes[2] === 'editar') return formLote(lote);

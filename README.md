@@ -14,6 +14,12 @@ App simple para anotar monitoreos de lotes.
 - **Productos aplicados** por lote: producto, tipo, fecha, dosis y notas (editables).
 - **Compartir por WhatsApp**: arma un mensaje con el resultado del monitoreo y los productos aplicados
   en los últimos 30 días.
+- **Mapa y gráficos**:
+  - Mapa satelital con los lotes dibujados (tocando las esquinas o caminando el borde con el GPS),
+    pintados según el semáforo. El GPS muestra dónde estás, en qué lote entraste, el lote más cercano
+    y guía hasta un lote (distancia y dirección; funciona sin señal). También abre Google Maps.
+  - Gráfico de evolución de plagas por lote con las líneas de umbral (cada plaga y los umbrales se
+    muestran u ocultan) y resumen de la campaña (estado de los lotes, productos por tipo, hectáreas por cultivo).
 - Malezas con nivel (Baja / Media / Alta) y notas.
 - Descarga de monitoreos y de productos aplicados en CSV (se abre con Excel).
 
@@ -50,10 +56,16 @@ Abrir http://localhost:3000.
 ## Estructura
 
 - `public/index.html`, `public/styles.css`, `public/app.js` – la app
+- `public/vendor/` – Leaflet 1.9.4 (mapa) y Chart.js 4.4.7 (gráficos), incluidos para que anden sin señal
 - `public/img/` – logo e íconos (generados a partir de `design/logo-original.png`)
 - `public/combinar.js` – cómo se combinan los datos de dos teléfonos
 - `netlify/functions/datos.mjs`, `servidor/sincronizacion.mjs` – servidor de datos compartidos
 - `server.js` – servidor para uso local
+
+## Mapa
+
+La imagen satelital es de Esri (World Imagery) y los caminos y nombres de Esri Reference. Las partes del mapa
+que se miran con señal quedan guardadas en el teléfono (hasta unas 4000 imágenes) para verlas sin señal.
 
 ## Publicar en Netlify
 
