@@ -198,6 +198,28 @@
 
   function cultivoEn(lote, campania) { return lote.cultivos[campania || datos.campania] || null; }
 
+  // Variedad o híbrido sembrado en el lote en una campaña (texto libre, puede estar vacío).
+  function variedadEn(lote, campania) { return (lote.variedades || {})[campania || datos.campania] || ''; }
+
+  // "Soja 1ra (DM 46i20)" o solo "Soja 1ra" si no tiene variedad cargada.
+  function cultivoConVariedad(cultivo, variedad) { return variedad ? cultivo + ' (' + variedad + ')' : cultivo; }
+
+  // Variedades ya cargadas para un cultivo (en cualquier lote o campaña), para sugerirlas al escribir.
+  function variedadesUsadas(cultivo) {
+    var lista = [];
+    datos.lotes.forEach(function (l) {
+      Object.keys(l.cultivos).forEach(function (c) {
+        if (l.cultivos[c] === cultivo && variedadEn(l, c)) lista.push(variedadEn(l, c));
+      });
+    });
+    datos.monitoreos.forEach(function (m) { if (m.cultivo === cultivo && m.variedad) lista.push(m.variedad); });
+    return lista.filter(function (v, i) { return lista.indexOf(v) === i; }).sort();
+  }
+
+  function opcionesVariedad(cultivo) {
+    return variedadesUsadas(cultivo).map(function (v) { return '<option value="' + esc(v) + '">'; }).join('');
+  }
+
   function porFechaDesc(a, b) { return b.fecha.localeCompare(a.fecha); }
 
   function monitoreosDe(loteId) {
@@ -322,7 +344,8 @@
   function itemLote(l) {
     var ultimo = monitoreosDe(l.id)[0];
     var estado = ultimo && peorEstado(ultimo);
-    var detalle = l.ha + ' ha · ' + (ultimo ? fecha(ultimo.fecha) + ' – ' + resumenPlagas(ultimo) : 'Sin monitoreos');
+    var variedad = variedadEn(l);
+    var detalle = l.ha + ' ha · ' + (variedad ? variedad + ' · ' : '') + (ultimo ? fecha(ultimo.fecha) + ' – ' + resumenPlagas(ultimo) : 'Sin monitoreos');
     return '<a class="item ' + (estado ? 'borde-' + estado : '') + '" href="#/lote/' + l.id + '">' +
       '<span class="item-icono">' + icono('brote') + '</span>' +
       '<div class="item-cuerpo"><div class="item-titulo">' + esc(l.nombre) + ' ' + chipEstado(estado) + '</div>' +
@@ -425,11 +448,12 @@
   function formLote(lote) {
     var editando = !!lote;
     var cultivo = editando ? cultivoEn(lote) : CULTIVOS[0];
-    lote = lote || { nombre: '', ha: '', cultivos: {} };
+    var variedad = editando ? variedadEn(lote) : '';
+    lote = lote || { nombre: '', ha: '', cultivos: {}, variedades: {} };
     app.innerHTML =
       '<a class="volver" href="' + (editando ? '#/lote/' + lote.id : '#/') + '">' + icono('volver') + 'Volver</a>' +
       '<h1>' + (editando ? 'Editar lote' : 'Nuevo lote') + '</h1>' +
-      '<p class="sub">El cultivo se guarda para la campaña ' + esc(datos.campania) + '.</p>' +
+      '<p class="sub">El cultivo y la variedad se guardan para la campaña ' + esc(datos.campania) + '.</p>' +
       '<form id="form-lote" class="tarjeta">' +
       '<div class="campo"><label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" required placeholder="Ej: Lote 07 – El Ombú" value="' + esc(lote.nombre) + '"/></div>' +
       '<div class="campos-2">' +
@@ -439,8 +463,16 @@
       '</select></div>' +
       '<div class="campo"><label for="f-ha">Hectáreas</label><input id="f-ha" name="ha" type="number" inputmode="decimal" min="0" step="any" value="' + esc(lote.ha) + '"/></div>' +
       '</div>' +
+      '<div class="campo"><label for="f-variedad">Variedad / híbrido <span class="opcional">(opcional)</span></label>' +
+      '<input id="f-variedad" name="variedad" list="variedades-usadas" autocomplete="off" placeholder="Ej: DM 46i20, NS 7621" value="' + esc(variedad) + '"/>' +
+      '<datalist id="variedades-usadas">' + opcionesVariedad(cultivo) + '</datalist></div>' +
       '<button class="btn-principal" type="submit">Guardar lote</button>' +
       '</form>';
+
+    // Las sugerencias de variedad dependen del cultivo elegido.
+    document.getElementById('f-cultivo').addEventListener('change', function (e) {
+      document.getElementById('variedades-usadas').innerHTML = opcionesVariedad(e.target.value);
+    });
 
     document.getElementById('form-lote').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -456,8 +488,11 @@
       tocar(lote);
       lote.nombre = f.nombre.value.trim();
       lote.ha = Number(f.ha.value) || 0;
+      lote.variedades = lote.variedades || {};
       if (f.cultivo.value) lote.cultivos[datos.campania] = f.cultivo.value;
       else delete lote.cultivos[datos.campania];
+      if (f.cultivo.value && f.variedad.value.trim()) lote.variedades[datos.campania] = f.variedad.value.trim();
+      else delete lote.variedades[datos.campania];
       guardar();
       location.hash = '#/lote/' + lote.id;
     });
@@ -472,7 +507,7 @@
     var html =
       '<a class="volver" href="#/">' + icono('volver') + 'Lotes</a>' +
       '<h1>' + esc(lote.nombre) + '</h1>' +
-      '<p class="sub">' + (cultivo ? esc(cultivo) + ' · ' : '') + lote.ha + ' ha · Campaña ' + esc(datos.campania) + '</p>';
+      '<p class="sub">' + (cultivo ? esc(cultivoConVariedad(cultivo, variedadEn(lote))) + ' · ' : '') + lote.ha + ' ha · Campaña ' + esc(datos.campania) + '</p>';
 
     if (cultivo) {
       html += '<a class="btn btn-principal" href="#/lote/' + lote.id + '/monitoreo">' + icono('planilla') + 'Nuevo monitoreo</a>';
@@ -527,7 +562,7 @@
     app.innerHTML =
       '<a class="volver" href="#/lote/' + lote.id + '">' + icono('volver') + esc(lote.nombre) + '</a>' +
       '<h1>' + (editando ? 'Editar producto' : 'Producto aplicado') + '</h1>' +
-      '<p class="sub">' + esc(lote.nombre) + ' · ' + esc(cultivoEn(lote, a.campania) || '') + '</p>' +
+      '<p class="sub">' + esc(lote.nombre) + ' · ' + esc(cultivoConVariedad(cultivoEn(lote, a.campania) || '', variedadEn(lote, a.campania))) + '</p>' +
       '<form id="form-aplicacion" class="tarjeta">' +
       '<div class="campo"><label for="a-producto">Producto</label><input id="a-producto" name="producto" required list="productos-usados" placeholder="Ej: Glifosato 66%" value="' + esc(a.producto) + '"/>' +
       '<datalist id="productos-usados">' + usados.map(function (p) { return '<option value="' + esc(p) + '">'; }).join('') + '</datalist></div>' +
@@ -573,6 +608,7 @@
     return {
       loteId: lote.id,
       cultivo: cultivo,
+      variedad: variedadEn(lote),
       fecha: hoy(),
       monitoreador: datos.ultimoMonitoreador || '',
       estadio: '',
@@ -603,7 +639,7 @@
 
     var html =
       '<a class="volver" href="' + volver + '">' + icono('volver') + (b.editandoId ? 'Cancelar' : esc(lote.nombre)) + '</a>' +
-      '<h1>' + (b.editandoId ? 'Editar monitoreo' : 'Nuevo monitoreo') + '</h1><p class="sub">' + esc(lote.nombre) + ' · ' + esc(b.cultivo) + '</p>' +
+      '<h1>' + (b.editandoId ? 'Editar monitoreo' : 'Nuevo monitoreo') + '</h1><p class="sub">' + esc(lote.nombre) + ' · ' + esc(cultivoConVariedad(b.cultivo, b.variedad)) + '</p>' +
 
       '<div class="tarjeta"><div class="campos-2">' +
       '<div class="campo"><label for="m-fecha">Fecha</label><input id="m-fecha" type="date" data-campo="fecha" value="' + b.fecha + '"/></div>' +
@@ -698,7 +734,7 @@
       if (!m) { alert('Este monitoreo fue borrado desde otro teléfono.'); borrador = null; location.hash = '#/lote/' + b.loteId; return; }
       Object.assign(m, valores);
     } else {
-      m = Object.assign({ id: nuevoId(), loteId: b.loteId, campania: datos.campania, cultivo: b.cultivo }, valores);
+      m = Object.assign({ id: nuevoId(), loteId: b.loteId, campania: datos.campania, cultivo: b.cultivo, variedad: b.variedad }, valores);
       datos.monitoreos.push(m);
     }
     tocar(m);
@@ -716,7 +752,7 @@
       '<a class="volver" href="#/lote/' + lote.id + '">' + icono('volver') + esc(lote.nombre) + '</a>' +
       '<h1>Monitoreo ' + fecha(m.fecha) + '</h1>' +
       '<div class="datos-fila">' +
-      '<span>' + icono('brote') + esc(m.cultivo) + (etapaTexto(m) ? ' · ' + esc(etapaTexto(m)) : '') + '</span>' +
+      '<span>' + icono('brote') + esc(cultivoConVariedad(m.cultivo, m.variedad)) + (etapaTexto(m) ? ' · ' + esc(etapaTexto(m)) : '') + '</span>' +
       '<span>' + icono('regla') + 'Paneo de ' + nombreLargo(m.largo) + ' · ' + paneos(cantidadPaneos(m)) + '</span>' +
       (m.monitoreador ? '<span>' + icono('persona') + esc(m.monitoreador) + '</span>' : '') +
       '</div>' +
@@ -744,7 +780,7 @@
     var lote = buscarLote(m.loteId) || { nombre: 'Lote', ha: '' };
     var lineas = [
       '*AgroLacau – Monitoreo*',
-      '📍 ' + lote.nombre + ' (' + m.cultivo + (lote.ha ? ' · ' + lote.ha + ' ha' : '') + ')',
+      '📍 ' + lote.nombre + ' (' + m.cultivo + (m.variedad ? ' ' + m.variedad : '') + (lote.ha ? ' · ' + lote.ha + ' ha' : '') + ')',
       '📅 ' + fecha(m.fecha) + (etapaTexto(m) ? ' · ' + etapaTexto(m) : '')
     ];
     if (m.monitoreador) lineas.push('👤 ' + m.monitoreador);
@@ -781,12 +817,12 @@
   // ---------- Exportar ----------
 
   function exportarMonitoreos() {
-    var filas = [['Campaña', 'Lote', 'Cultivo', 'Fecha', 'Monitoreó', 'Estado del cultivo', 'Etapa', 'Tipo de paneo', 'Paneos', 'Plaga', 'Conteos', 'Ind/m', 'Umbral', 'Semáforo', 'Malezas', 'Notas']];
+    var filas = [['Campaña', 'Lote', 'Cultivo', 'Variedad', 'Fecha', 'Monitoreó', 'Estado del cultivo', 'Etapa', 'Tipo de paneo', 'Paneos', 'Plaga', 'Conteos', 'Ind/m', 'Umbral', 'Semáforo', 'Malezas', 'Notas']];
     datos.monitoreos.slice().sort(function (a, b) { return a.fecha.localeCompare(b.fecha); }).forEach(function (m) {
       var lote = buscarLote(m.loteId) || { nombre: '' };
       var malezas = m.malezas.map(function (mz) { return mz.nombre + ' (' + mz.nivel + ')'; }).join(', ');
       resultados(m).forEach(function (r, i) {
-        filas.push([m.campania, lote.nombre, m.cultivo, fecha(m.fecha), m.monitoreador || '', m.estadio, nombreEtapa(etapaDe(m)),
+        filas.push([m.campania, lote.nombre, m.cultivo, m.variedad || '', fecha(m.fecha), m.monitoreador || '', m.estadio, nombreEtapa(etapaDe(m)),
           nombreLargo(m.largo), cantidadPaneos(m), r.nombre, m.plagas[i].conteos.join(' '), num(r.valor),
           r.umbral ? num(r.umbral) : '', r.estado ? ESTADOS[r.estado] : '', malezas, m.notas]);
       });
@@ -795,10 +831,10 @@
   }
 
   function exportarAplicaciones() {
-    var filas = [['Campaña', 'Lote', 'Cultivo', 'Fecha', 'Producto', 'Tipo', 'Dosis', 'Notas']];
+    var filas = [['Campaña', 'Lote', 'Cultivo', 'Variedad', 'Fecha', 'Producto', 'Tipo', 'Dosis', 'Notas']];
     datos.aplicaciones.slice().sort(function (a, b) { return a.fecha.localeCompare(b.fecha); }).forEach(function (a) {
       var lote = buscarLote(a.loteId) || { nombre: '', cultivos: {} };
-      filas.push([a.campania, lote.nombre, lote.cultivos[a.campania] || '', fecha(a.fecha), a.producto, a.tipo, a.dosis, a.notas]);
+      filas.push([a.campania, lote.nombre, lote.cultivos[a.campania] || '', variedadEn(lote, a.campania), fecha(a.fecha), a.producto, a.tipo, a.dosis, a.notas]);
     });
     descargarCsv(filas, 'productos-aplicados');
   }

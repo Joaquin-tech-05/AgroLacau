@@ -4,7 +4,7 @@ App simple para anotar monitoreos de lotes.
 
 - **Campañas** (2025/26, 2026/27…): se eligen arriba a la derecha. Cada lote tiene un cultivo por campaña
   y los monitoreos y productos se ven por campaña.
-- **Lotes** agrupados por cultivo, con resumen de la campaña (lotes, hectáreas, monitoreos, alertas, productos).
+- **Lotes** agrupados por cultivo, con variedad o híbrido por campaña y resumen de la campaña (lotes, hectáreas, monitoreos, alertas, productos).
 - **Monitoreos** por lote: quién monitoreó, paneo de **1 metro** o de **½ metro**, conteo de plagas por paneo
   y resultado automático en **individuos por metro lineal**
   (total contado ÷ (cantidad de paneos × largo del paño)). Se pueden editar después de guardados.
